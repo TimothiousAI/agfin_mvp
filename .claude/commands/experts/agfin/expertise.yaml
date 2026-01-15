@@ -1,0 +1,149 @@
+# AgFin Crop Finance MVP - Expertise Context
+# This file provides domain knowledge for AgFin-specific planning and development
+
+project:
+  name: AgFin Crop Finance MVP
+  description: AI-powered crop loan application platform for agricultural lenders
+  paradigm: Claude.ai-style chat interface as PRIMARY UI
+
+architecture:
+  frontend:
+    framework: Vite 5.x + React 18.x + TypeScript 5.x
+    port: 5173
+    styling: Tailwind CSS with Agrellus brand colors
+    state: TanStack Query (server) + Zustand (client)
+    components: shadcn/ui (Radix UI primitives)
+    forms: React Hook Form + Zod validation
+    animations: Framer Motion
+    auth: Clerk React SDK
+    key_directories:
+      - client/src/application/shell/     # Three-column layout
+      - client/src/application/conversation/  # Chat state
+      - client/src/application/documents/  # Document upload
+      - client/src/application/modules/    # M1-M5 forms
+      - client/src/shared/ui/              # shadcn components
+
+  backend:
+    framework: Express.js 4.x + TypeScript
+    port: 3001
+    validation: Zod for all requests
+    auth: Clerk middleware
+    key_directories:
+      - server/src/api/                    # Route handlers
+      - server/src/application/            # Business logic
+      - server/src/auth/                   # Clerk middleware
+      - server/src/core/                   # Config, logging
+
+  ai_service:
+    framework: Python 3.11+ + FastAPI
+    port: 8000
+    llm: Anthropic Claude with tool_runner pattern
+    memory: mem0 with Supabase pgvector
+    embeddings: OpenAI text-embedding-3-small
+    key_directories:
+      - ai-service/src/routers/            # API endpoints
+      - ai-service/src/tools/              # Agent tools (8 total)
+      - ai-service/src/claude/             # Claude client
+      - ai-service/src/memory/             # mem0 integration
+
+  database:
+    provider: Supabase (PostgreSQL + pgvector)
+    port: 54321
+    studio_port: 54323
+    features:
+      - Row Level Security (RLS)
+      - pgvector for embeddings
+      - Supabase Storage for documents
+    key_tables:
+      - applications
+      - documents
+      - module_data
+      - audit_trail
+      - agfin_ai_bot_sessions
+      - agfin_ai_bot_messages
+      - agfin_ai_bot_memories
+
+  ocr:
+    service: Docling
+    port: 5001
+    timeout: 120 seconds
+    capabilities:
+      - PDF OCR
+      - Table extraction
+      - Field detection
+      - Confidence scoring
+
+domain:
+  document_types:
+    - drivers_license      # M1: Identity
+    - schedule_f           # M3: Financial
+    - organization_docs    # M1: Identity
+    - balance_sheet        # M3: Financial
+    - fsa_578              # M2: Lands
+    - current_crop_insurance  # M4: Operations
+    - prior_crop_insurance    # M4: Operations
+    - lease_agreement      # M2: Lands
+    - equipment_list       # M3: Financial
+
+  data_modules:
+    M1: Identity & Entity (name, DOB, SSN, entity, EIN, partners)
+    M2: Lands Farmed (tracts, acres, counties)
+    M3: Financial Statement (assets, liabilities, net worth)
+    M4: Projected Operations (yields, prices, expenses)
+    M5: Summary & Ratios (calculated fields)
+
+  data_sources:
+    - ai_extracted         # From Docling OCR
+    - proxy_entered        # Manual entry by analyst
+    - proxy_edited         # AI value modified
+    - auditor_verified     # Confirmed during audit
+
+  confidence_thresholds:
+    auto_accept: 0.90      # >= 90% auto-accepted
+    review_needed: 0.70    # 70-89% needs review
+    low_confidence: 0.70   # < 70% flagged
+
+  application_statuses:
+    - draft
+    - awaiting_documents
+    - awaiting_audit
+    - certified
+    - locked
+
+patterns:
+  chat_first_ux:
+    description: All functionality flows through conversation
+    post_login: Land directly on chat interface
+    actions: AI agent handles all operations through natural language
+
+  anthropic_tool_runner:
+    description: Automatic tool execution loop
+    tools:
+      - query_application
+      - create_application
+      - upload_document
+      - extract_fields
+      - update_module
+      - request_audit
+      - certify_application
+      - show_artifact
+
+  three_column_layout:
+    sidebar: 280px fixed (conversations)
+    center: flex-grow (chat)
+    artifact: 400px collapsible (documents/forms)
+
+brand:
+  primary_green: "#30714C"
+  wheat_gold: "#DDC66F"
+  background_dark: "#061623"
+  background_card: "#0D2233"
+
+critical_files:
+  specification: docs/ai_docs/spec.md
+  prd: docs/ai_docs/PRD-AgFin-MVP.md
+  brand: docs/ai_docs/AgBrandSkill.md
+  frontend_shell: client/src/application/shell/AppLayout.tsx
+  chat_center: client/src/application/shell/ChatCenter.tsx
+  backend_routes: server/src/api/applications.ts
+  ai_tools: ai-service/src/tools/
