@@ -1,0 +1,542 @@
+/**
+ * High Contrast Mode Support
+ *
+ * Supports Windows High Contrast Mode via forced-colors media query
+ * - Ensures all borders visible
+ * - Uses system colors appropriately
+ * - Maintains text readability
+ * - Preserves focus indicators
+ * - Works with all Windows High Contrast themes
+ */
+
+/* Forced colors mode (Windows High Contrast) */
+@media (forced-colors: active) {
+  /* =========================
+   * Text and Backgrounds
+   * ========================= */
+
+  /* Ensure text always uses system text color */
+  body,
+  p,
+  span,
+  div,
+  li,
+  td,
+  th {
+    color: CanvasText;
+    background-color: Canvas;
+  }
+
+  /* Links should use system link color */
+  a {
+    color: LinkText;
+  }
+
+  a:visited {
+    color: VisitedText;
+  }
+
+  a:hover,
+  a:active {
+    color: ActiveText;
+  }
+
+  /* Buttons should use system button colors */
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    color: ButtonText;
+    background-color: ButtonFace;
+    border: 1px solid ButtonText;
+    forced-color-adjust: none; /* Allow custom styling */
+  }
+
+  button:hover,
+  [role="button"]:hover {
+    background-color: Highlight;
+    color: HighlightText;
+    border-color: HighlightText;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"] {
+    color: GrayText;
+    border-color: GrayText;
+    background-color: Canvas;
+  }
+
+  /* =========================
+   * Borders and Outlines
+   * ========================= */
+
+  /* Ensure all interactive elements have visible borders */
+  input,
+  textarea,
+  select,
+  [contenteditable="true"] {
+    border: 1px solid CanvasText;
+    background-color: Field;
+    color: FieldText;
+  }
+
+  /* Card and container borders */
+  [role="article"],
+  [role="region"],
+  .card,
+  .container,
+  [data-card] {
+    border: 1px solid CanvasText;
+  }
+
+  /* Dialog and modal borders */
+  [role="dialog"],
+  [role="alertdialog"],
+  .dialog,
+  .modal {
+    border: 2px solid CanvasText;
+    background-color: Canvas;
+  }
+
+  /* Menu borders */
+  [role="menu"],
+  [role="listbox"],
+  .dropdown,
+  .menu {
+    border: 1px solid CanvasText;
+    background-color: Canvas;
+  }
+
+  /* Ensure separators are visible */
+  hr,
+  [role="separator"] {
+    border-color: CanvasText;
+    border-style: solid;
+    border-width: 1px 0 0 0;
+  }
+
+  /* =========================
+   * Focus Indicators
+   * ========================= */
+
+  /* Enhanced focus indicators for high contrast */
+  *:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+    forced-color-adjust: none;
+  }
+
+  /* Input focus */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+  }
+
+  /* Button focus */
+  button:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  /* Link focus */
+  a:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+  }
+
+  /* =========================
+   * Selected States
+   * ========================= */
+
+  /* Selected menu items and options */
+  [role="option"][aria-selected="true"],
+  [role="menuitem"][aria-selected="true"],
+  [role="tab"][aria-selected="true"] {
+    background-color: Highlight;
+    color: HighlightText;
+    border: 1px solid HighlightText;
+    forced-color-adjust: none;
+  }
+
+  /* Checkbox and radio selected states */
+  [type="checkbox"]:checked,
+  [type="radio"]:checked,
+  [role="checkbox"][aria-checked="true"],
+  [role="radio"][aria-checked="true"] {
+    background-color: Highlight;
+    border-color: HighlightText;
+    forced-color-adjust: none;
+  }
+
+  /* Selection highlight */
+  ::selection {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+
+  /* =========================
+   * Icons and Graphics
+   * ========================= */
+
+  /* SVG icons should use currentColor */
+  svg {
+    color: CanvasText;
+    fill: currentColor;
+    forced-color-adjust: auto;
+  }
+
+  /* Icon buttons */
+  button svg,
+  [role="button"] svg {
+    color: ButtonText;
+    fill: currentColor;
+  }
+
+  button:hover svg,
+  [role="button"]:hover svg {
+    color: HighlightText;
+  }
+
+  /* Decorative images should not interfere */
+  img[alt=""],
+  img[role="presentation"],
+  [role="img"][aria-hidden="true"] {
+    opacity: 0.3;
+  }
+
+  /* =========================
+   * Status and Notifications
+   * ========================= */
+
+  /* Error states */
+  [aria-invalid="true"],
+  .error,
+  [data-state="error"] {
+    border: 2px solid CanvasText;
+    border-style: double; /* Different style for emphasis */
+  }
+
+  /* Success states */
+  .success,
+  [data-state="success"] {
+    border: 2px solid CanvasText;
+    border-style: solid;
+  }
+
+  /* Warning states */
+  .warning,
+  [data-state="warning"] {
+    border: 2px solid CanvasText;
+    border-style: dashed;
+  }
+
+  /* Info states */
+  .info,
+  [data-state="info"] {
+    border: 2px solid CanvasText;
+    border-style: dotted;
+  }
+
+  /* Alerts and toasts */
+  [role="alert"],
+  [role="status"],
+  .toast,
+  .alert {
+    border: 2px solid CanvasText;
+    background-color: Canvas;
+    color: CanvasText;
+  }
+
+  /* =========================
+   * Loading and Disabled States
+   * ========================= */
+
+  /* Loading/busy states */
+  [aria-busy="true"] {
+    opacity: 1; /* Don't dim in high contrast */
+    border: 1px dashed CanvasText;
+  }
+
+  /* Disabled elements */
+  [disabled],
+  [aria-disabled="true"] {
+    color: GrayText;
+    border-color: GrayText;
+    opacity: 1; /* Rely on GrayText, not opacity */
+  }
+
+  /* =========================
+   * Navigation
+   * ========================= */
+
+  /* Current page indicator */
+  [aria-current="page"],
+  .active {
+    background-color: Highlight;
+    color: HighlightText;
+    border: 2px solid HighlightText;
+    forced-color-adjust: none;
+  }
+
+  /* Breadcrumb separators */
+  nav[aria-label*="readcrumb"] li::after {
+    color: CanvasText;
+  }
+
+  /* Skip links */
+  .skip-link {
+    color: LinkText;
+    background-color: Canvas;
+    border: 2px solid LinkText;
+  }
+
+  .skip-link:focus {
+    outline: 2px solid Highlight;
+  }
+
+  /* =========================
+   * Tables
+   * ========================= */
+
+  table {
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    border: 1px solid CanvasText;
+    color: CanvasText;
+    background-color: Canvas;
+  }
+
+  th {
+    font-weight: bold;
+  }
+
+  /* Table row hover */
+  tbody tr:hover {
+    background-color: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+
+  /* =========================
+   * Forms
+   * ========================= */
+
+  /* Form labels */
+  label {
+    color: CanvasText;
+  }
+
+  /* Required field indicator */
+  [required] + label::after,
+  [aria-required="true"] + label::after {
+    content: " *";
+    color: CanvasText;
+  }
+
+  /* Fieldset borders */
+  fieldset {
+    border: 1px solid CanvasText;
+  }
+
+  legend {
+    color: CanvasText;
+  }
+
+  /* Radio and checkbox groups */
+  [role="radiogroup"],
+  [role="group"] {
+    border: 1px solid CanvasText;
+  }
+
+  /* =========================
+   * Progress and Meters
+   * ========================= */
+
+  /* Progress bars */
+  progress,
+  [role="progressbar"] {
+    border: 1px solid CanvasText;
+    background-color: Canvas;
+  }
+
+  /* Ensure progress fill is visible */
+  progress::-webkit-progress-bar {
+    background-color: Canvas;
+  }
+
+  progress::-webkit-progress-value {
+    background-color: Highlight;
+  }
+
+  progress::-moz-progress-bar {
+    background-color: Highlight;
+  }
+
+  /* Meters */
+  meter {
+    border: 1px solid CanvasText;
+  }
+
+  /* =========================
+   * Tooltips and Popovers
+   * ========================= */
+
+  [role="tooltip"],
+  .tooltip {
+    background-color: Canvas;
+    color: CanvasText;
+    border: 2px solid CanvasText;
+  }
+
+  [role="tooltip"]::before,
+  .tooltip::before {
+    /* Tooltip arrow */
+    border-color: CanvasText;
+  }
+
+  /* =========================
+   * Badges and Tags
+   * ========================= */
+
+  .badge,
+  .tag,
+  [data-badge] {
+    border: 1px solid CanvasText;
+    color: CanvasText;
+    background-color: Canvas;
+  }
+
+  /* =========================
+   * Accordion and Disclosure
+   * ========================= */
+
+  [role="button"][aria-expanded] {
+    border: 1px solid CanvasText;
+  }
+
+  /* Expanded content */
+  [role="region"][aria-hidden="false"] {
+    border: 1px solid CanvasText;
+  }
+
+  /* =========================
+   * Slider and Range
+   * ========================= */
+
+  [type="range"],
+  [role="slider"] {
+    background-color: Canvas;
+  }
+
+  [type="range"]::-webkit-slider-thumb,
+  [type="range"]::-moz-range-thumb {
+    background-color: ButtonFace;
+    border: 1px solid ButtonText;
+  }
+
+  [type="range"]::-webkit-slider-runnable-track,
+  [type="range"]::-moz-range-track {
+    background-color: Canvas;
+    border: 1px solid CanvasText;
+  }
+
+  /* =========================
+   * Custom Components
+   * ========================= */
+
+  /* Command palette */
+  [data-command-dialog],
+  [data-command-input] {
+    border: 2px solid CanvasText;
+    background-color: Canvas;
+  }
+
+  [data-command-item] {
+    color: CanvasText;
+  }
+
+  [data-command-item][aria-selected="true"] {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+
+  /* Floating action button */
+  .fab,
+  [data-fab] {
+    background-color: ButtonFace;
+    color: ButtonText;
+    border: 2px solid ButtonText;
+  }
+
+  /* Touch targets */
+  .touch-target {
+    border: 1px solid CanvasText;
+  }
+
+  /* =========================
+   * Animations and Transitions
+   * ========================= */
+
+  /* Disable background images that may interfere */
+  * {
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Keep gradients for functional purposes only */
+  progress,
+  meter,
+  [role="progressbar"] {
+    forced-color-adjust: none;
+  }
+
+  /* =========================
+   * Print-like States
+   * ========================= */
+
+  /* Ensure print preview works */
+  @media print {
+    * {
+      forced-color-adjust: auto;
+    }
+  }
+}
+
+/* =========================
+ * High Contrast Preference
+ * ========================= */
+
+/* Support for prefers-contrast: high (different from forced-colors) */
+@media (prefers-contrast: high) {
+  /* Increase border widths */
+  button,
+  input,
+  textarea,
+  select {
+    border-width: 2px;
+  }
+
+  /* Increase focus indicator width */
+  *:focus-visible {
+    outline-width: 3px;
+  }
+
+  /* Increase text weight for better visibility */
+  body {
+    font-weight: 500;
+  }
+
+  strong,
+  b,
+  th {
+    font-weight: 700;
+  }
+}

@@ -1,0 +1,211 @@
+/**
+ * Focus Styles
+ *
+ * Consistent focus indicators for accessibility
+ * - Uses focus-visible to only show on keyboard navigation
+ * - Provides high contrast focus rings
+ * - Custom styles per component type
+ */
+
+/* Base focus ring for all interactive elements */
+*:focus-visible {
+  outline: 2px solid #30714C !important;
+  outline-offset: 2px !important;
+  border-radius: 0.25rem;
+}
+
+/* Remove default outline for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
+/* High contrast focus for dark backgrounds */
+[data-dark-bg] *:focus-visible,
+.dark *:focus-visible {
+  outline-color: #DDC66F;
+}
+
+/* Button focus styles */
+button:focus-visible {
+  outline: 2px solid #30714C !important;
+  outline-offset: 2px !important;
+}
+
+button[data-variant="destructive"]:focus-visible {
+  outline-color: #C1201C !important;
+}
+
+button[data-variant="secondary"]:focus-visible {
+  outline-color: #DDC66F !important;
+}
+
+button[data-variant="ghost"]:focus-visible,
+button[data-variant="link"]:focus-visible {
+  outline-color: #30714C !important;
+  outline-offset: 4px !important;
+}
+
+/* Input focus styles */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #30714C !important;
+  outline-offset: 0 !important;
+  border-color: #30714C !important;
+}
+
+input[aria-invalid="true"]:focus-visible,
+textarea[aria-invalid="true"]:focus-visible {
+  outline-color: #C1201C;
+  border-color: #C1201C;
+}
+
+/* Link focus styles */
+a:focus-visible {
+  outline: 2px solid #30714C;
+  outline-offset: 2px;
+  border-radius: 0.125rem;
+}
+
+/* Card and container focus styles */
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 2px solid #30714C;
+  outline-offset: 2px;
+}
+
+/* Dialog and modal focus styles */
+[role="dialog"]:focus-visible,
+[role="alertdialog"]:focus-visible {
+  outline: 2px solid #30714C;
+  outline-offset: -2px; /* Inside for containers */
+}
+
+/* Menu and dropdown focus styles */
+[role="menu"] [role="menuitem"]:focus-visible,
+[role="listbox"] [role="option"]:focus-visible {
+  outline: 2px solid #30714C;
+  outline-offset: -2px;
+  background-color: rgba(48, 113, 76, 0.1);
+}
+
+/* Tab focus styles */
+[role="tab"]:focus-visible {
+  outline: 2px solid #30714C;
+  outline-offset: 2px;
+}
+
+[role="tab"][aria-selected="true"]:focus-visible {
+  outline-width: 3px;
+}
+
+/* Checkbox and radio focus styles */
+[type="checkbox"]:focus-visible,
+[type="radio"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[role="radio"]:focus-visible {
+  outline: 2px solid #30714C;
+  outline-offset: 2px;
+}
+
+/* Switch/toggle focus styles */
+[role="switch"]:focus-visible {
+  outline: 2px solid #30714C;
+  outline-offset: 2px;
+}
+
+/* Slider focus styles */
+[type="range"]:focus-visible,
+[role="slider"]:focus-visible {
+  outline: 2px solid #30714C;
+  outline-offset: 2px;
+}
+
+/* Command palette and search focus styles */
+[data-command-item]:focus-visible,
+[data-search-result]:focus-visible {
+  outline: 2px solid #30714C;
+  outline-offset: -2px;
+  background-color: rgba(48, 113, 76, 0.1);
+}
+
+/* Skip link focus styles */
+.skip-link:focus-visible {
+  outline: 3px solid #DDC66F;
+  outline-offset: 2px;
+}
+
+/* Focus within (for container states) */
+:has(*:focus-visible) {
+  /* Container can have subtle indication */
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  *:focus-visible {
+    outline-width: 3px;
+  }
+}
+
+/* Forced colors mode (Windows High Contrast) */
+@media (forced-colors: active) {
+  *:focus-visible {
+    outline: 2px solid ButtonText;
+  }
+}
+
+/* Reduced motion - instant focus indication */
+@media (prefers-reduced-motion: reduce) {
+  *:focus-visible {
+    transition: none;
+  }
+}
+
+/* Focus ring utilities for custom components */
+.focus-ring {
+  position: relative;
+}
+
+.focus-ring:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 2px solid #30714C;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.focus-ring-inset:focus-visible::after {
+  inset: 2px;
+}
+
+/* Focus visible class for programmatic focus */
+.focus-visible-force {
+  outline: 2px solid #30714C !important;
+  outline-offset: 2px !important;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  *:focus-visible {
+    outline-color: #DDC66F;
+  }
+
+  button[data-variant="destructive"]:focus-visible {
+    outline-color: #ff4444;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline-color: #DDC66F;
+    border-color: #DDC66F;
+  }
+
+  input[aria-invalid="true"]:focus-visible,
+  textarea[aria-invalid="true"]:focus-visible {
+    outline-color: #ff4444;
+    border-color: #ff4444;
+  }
+}

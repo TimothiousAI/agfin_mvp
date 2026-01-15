@@ -1,0 +1,396 @@
+/**
+ * Reduced Motion Styles
+ *
+ * Respects prefers-reduced-motion media query
+ * - Disables non-essential animations
+ * - Replaces animations with instant/fade transitions
+ * - Keeps functional transitions minimal
+ */
+
+/* Global reduced motion handling */
+@media (prefers-reduced-motion: reduce) {
+
+  /* ================================
+   * Disable All Animations by Default
+   * ================================ */
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* ================================
+   * Essential Transitions (Always Allow)
+   * ================================ */
+
+  /* Color changes are safe - no motion sickness */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    transition: color 0.15s ease-in-out,
+                background-color 0.15s ease-in-out,
+                border-color 0.15s ease-in-out,
+                box-shadow 0.15s ease-in-out !important;
+  }
+
+  /* Opacity fades are gentle and safe */
+  .fade,
+  [data-fade],
+  [role="alert"],
+  [role="status"],
+  .toast,
+  .alert {
+    transition: opacity 0.15s ease-in-out !important;
+  }
+
+  /* ================================
+   * Disable Specific Animations
+   * ================================ */
+
+  /* Spinning loaders -> static or pulsing */
+  .spinner,
+  .loading,
+  [data-loading],
+  [aria-busy="true"] {
+    animation: none !important;
+  }
+
+  /* Replace spinner with static indicator */
+  .spinner::after,
+  .loading::after {
+    content: '⏳';
+    animation: none !important;
+  }
+
+  /* Sliding panels -> instant appearance */
+  .slide-in,
+  .slide-out,
+  [data-slide] {
+    transform: none !important;
+    animation: none !important;
+    transition: opacity 0.1s ease-in-out !important;
+  }
+
+  /* Bouncing elements -> no bounce */
+  .bounce,
+  [data-bounce] {
+    animation: none !important;
+  }
+
+  /* Shaking/wiggling -> static */
+  .shake,
+  .wiggle,
+  [data-shake] {
+    animation: none !important;
+  }
+
+  /* Pulsing -> static or gentle fade */
+  .pulse,
+  [data-pulse] {
+    animation: none !important;
+  }
+
+  /* Rotating elements -> static */
+  .rotate,
+  [data-rotate] {
+    animation: none !important;
+  }
+
+  /* Parallax scrolling -> fixed positioning */
+  .parallax,
+  [data-parallax] {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* ================================
+   * Modal and Dialog Animations
+   * ================================ */
+
+  [role="dialog"],
+  [role="alertdialog"],
+  .dialog,
+  .modal {
+    animation: none !important;
+    transition: opacity 0.1s ease-in-out !important;
+  }
+
+  /* Dialog backdrop */
+  .dialog-backdrop,
+  .modal-backdrop {
+    animation: none !important;
+    transition: opacity 0.1s ease-in-out !important;
+  }
+
+  /* ================================
+   * Dropdown and Popover Animations
+   * ================================ */
+
+  [role="menu"],
+  [role="listbox"],
+  [role="tooltip"],
+  .dropdown,
+  .popover,
+  .tooltip {
+    animation: none !important;
+    transition: opacity 0.1s ease-in-out !important;
+    transform: none !important;
+  }
+
+  /* ================================
+   * Toast and Notification Animations
+   * ================================ */
+
+  [role="alert"],
+  [role="status"],
+  .toast,
+  .notification {
+    animation: none !important;
+    transition: opacity 0.15s ease-in-out !important;
+    transform: none !important;
+  }
+
+  /* ================================
+   * Accordion and Collapsible
+   * ================================ */
+
+  [role="region"][aria-hidden="false"],
+  .accordion-content,
+  .collapsible-content {
+    animation: none !important;
+    transition: opacity 0.1s ease-in-out !important;
+    height: auto !important;
+  }
+
+  /* Accordion triggers don't need rotation */
+  [aria-expanded] .icon,
+  [aria-expanded] svg {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  /* ================================
+   * Tab Animations
+   * ================================ */
+
+  [role="tabpanel"] {
+    animation: none !important;
+    transition: opacity 0.1s ease-in-out !important;
+  }
+
+  /* Tab indicator sliding -> instant jump */
+  .tab-indicator,
+  [data-tab-indicator] {
+    transition: none !important;
+  }
+
+  /* ================================
+   * Loading States
+   * ================================ */
+
+  /* Skeleton loaders -> static */
+  .skeleton,
+  [data-skeleton] {
+    animation: none !important;
+    opacity: 0.6;
+  }
+
+  /* Progress bars -> still allow smooth fill */
+  progress,
+  [role="progressbar"] {
+    transition: none !important;
+  }
+
+  /* But allow the value to update smoothly (not motion-sick inducing) */
+  progress::-webkit-progress-value,
+  progress::-moz-progress-bar {
+    transition: width 0.3s ease-out !important;
+  }
+
+  /* ================================
+   * Hover Effects
+   * ================================ */
+
+  /* Hover scale -> no scale, just color change */
+  *:hover {
+    transform: none !important;
+  }
+
+  /* Hover lift -> no lift */
+  .card:hover,
+  .button:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* ================================
+   * Focus Animations
+   * ================================ */
+
+  /* Focus should be instant for clarity */
+  *:focus-visible {
+    transition: none !important;
+  }
+
+  /* ================================
+   * Scroll Animations
+   * ================================ */
+
+  /* Disable smooth scrolling */
+  html,
+  body {
+    scroll-behavior: auto !important;
+  }
+
+  /* Scroll-triggered animations -> instant appearance */
+  [data-scroll-animation],
+  .scroll-reveal {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* ================================
+   * Carousel and Slider Animations
+   * ================================ */
+
+  .carousel,
+  .slider,
+  [role="region"][aria-live] {
+    scroll-behavior: auto !important;
+  }
+
+  .carousel-slide,
+  .slider-slide {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  /* Auto-playing carousels should pause */
+  .carousel[data-autoplay],
+  .slider[data-autoplay] {
+    animation-play-state: paused !important;
+  }
+
+  /* ================================
+   * Video and GIF Handling
+   * ================================ */
+
+  /* Note: Can't stop autoplay via CSS, needs JS */
+  video[autoplay] {
+    /* This is a hint, actual control needs JS */
+  }
+
+  /* Animated GIFs -> user needs to control via prefers-reduced-motion in JS */
+
+  /* ================================
+   * Custom Animations (Allow Override)
+   * ================================ */
+
+  /* Class to explicitly allow animation despite reduced motion */
+  .allow-animation,
+  [data-allow-animation] {
+    animation-duration: revert !important;
+    transition-duration: revert !important;
+  }
+
+  /* ================================
+   * Utility Classes
+   * ================================ */
+
+  /* Force instant */
+  .instant {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Force fade only */
+  .fade-only {
+    animation: none !important;
+    transition: opacity 0.15s ease-in-out !important;
+    transform: none !important;
+  }
+}
+
+/* ================================
+ * Reduced Motion Class (JS-controlled)
+ * ================================ */
+
+/* When .reduce-motion is added to <html> via JS */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Allow essential transitions even with reduce-motion class */
+html.reduce-motion button,
+html.reduce-motion a,
+html.reduce-motion input {
+  transition: color 0.15s ease-in-out,
+              background-color 0.15s ease-in-out,
+              border-color 0.15s ease-in-out !important;
+}
+
+/* ================================
+ * Motion-Safe Animations (Only run if motion is allowed)
+ * ================================ */
+
+/* These animations only run when motion is NOT reduced */
+@media (prefers-reduced-motion: no-preference) {
+
+  /* Gentle fade in */
+  .motion-safe-fade {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  /* Gentle slide in from bottom */
+  .motion-safe-slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  /* Gentle scale in */
+  .motion-safe-scale {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}

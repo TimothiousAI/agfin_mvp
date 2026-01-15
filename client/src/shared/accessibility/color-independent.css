@@ -1,0 +1,264 @@
+/**
+ * Color-Independent Visual Indicators
+ *
+ * Ensures information is not conveyed by color alone
+ * - Icons for status
+ * - Underlines for links
+ * - Patterns/textures
+ * - Shape differences
+ */
+
+/* Ensure all links are underlined */
+a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+/* Button-styled links should have clear hover states */
+a[role="button"],
+a.button {
+  text-decoration: none;
+  position: relative;
+}
+
+a[role="button"]:hover,
+a.button:hover {
+  text-decoration: underline;
+}
+
+/* Navigation links can skip underline but need clear states */
+nav a {
+  text-decoration: none;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+nav a[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  font-weight: 600;
+}
+
+/* Error states should have icons, not just color */
+.error,
+[aria-invalid="true"],
+.text-destructive {
+  position: relative;
+}
+
+.error::before,
+[aria-invalid="true"]::before {
+  content: '⚠ ';
+  display: inline;
+  font-weight: bold;
+}
+
+/* Success states should have icons */
+.success,
+[aria-live="polite"] .success-message {
+  position: relative;
+}
+
+.success::before {
+  content: '✓ ';
+  display: inline;
+  font-weight: bold;
+}
+
+/* Warning states */
+.warning {
+  position: relative;
+}
+
+.warning::before {
+  content: '⚠ ';
+  display: inline;
+  font-weight: bold;
+}
+
+/* Info states */
+.info {
+  position: relative;
+}
+
+.info::before {
+  content: 'ℹ ';
+  display: inline;
+  font-weight: bold;
+}
+
+/* Required field indicators */
+.required,
+[aria-required="true"] {
+  position: relative;
+}
+
+.required label::after,
+[aria-required="true"] + label::after {
+  content: ' *';
+  color: inherit;
+  font-weight: bold;
+}
+
+/* Disabled states should be visually distinct */
+[disabled],
+[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+button[disabled],
+button[aria-disabled="true"] {
+  text-decoration: none; /* Buttons shouldn't have strikethrough */
+  opacity: 0.5;
+}
+
+/* Loading states */
+[aria-busy="true"] {
+  position: relative;
+  opacity: 0.7;
+}
+
+[aria-busy="true"]::after {
+  content: '...';
+  display: inline;
+  animation: loading-dots 1.5s infinite;
+}
+
+@keyframes loading-dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+/* Status badges should have clear patterns */
+.badge-success,
+.badge-high-confidence {
+  border-style: solid;
+  border-width: 2px;
+}
+
+.badge-warning,
+.badge-medium-confidence {
+  border-style: dashed;
+  border-width: 2px;
+}
+
+.badge-error,
+.badge-low-confidence {
+  border-style: dotted;
+  border-width: 2px;
+}
+
+/* Chart/graph patterns for color blindness */
+.pattern-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.1) 10px,
+    rgba(0, 0, 0, 0.1) 20px
+  );
+}
+
+.pattern-dots {
+  background-image: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 0.1) 2px,
+    transparent 2px
+  );
+  background-size: 10px 10px;
+}
+
+.pattern-grid {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+/* Shape indicators for different states */
+.shape-circle {
+  border-radius: 50%;
+}
+
+.shape-square {
+  border-radius: 0;
+}
+
+.shape-rounded {
+  border-radius: 0.25rem;
+}
+
+.shape-pill {
+  border-radius: 9999px;
+}
+
+/* Interactive element states - clear beyond color */
+.interactive-hover:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.interactive-active:active {
+  transform: scale(0.95);
+}
+
+/* Selected states */
+[aria-selected="true"] {
+  font-weight: 600;
+  border-left: 4px solid currentColor;
+  padding-left: 8px;
+}
+
+[aria-checked="true"]::before {
+  content: '✓ ';
+  display: inline;
+  font-weight: bold;
+}
+
+/* Expanded/collapsed indicators */
+[aria-expanded="true"]::after {
+  content: ' ▼';
+  display: inline;
+  font-size: 0.75em;
+}
+
+[aria-expanded="false"]::after {
+  content: ' ▶';
+  display: inline;
+  font-size: 0.75em;
+}
+
+/* Sorted table columns */
+[aria-sort="ascending"]::after {
+  content: ' ↑';
+  display: inline;
+}
+
+[aria-sort="descending"]::after {
+  content: ' ↓';
+  display: inline;
+}
+
+/* Pressed state for toggle buttons */
+[aria-pressed="true"] {
+  font-weight: 600;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Current page in navigation */
+[aria-current="page"] {
+  font-weight: 700;
+  border-bottom: 3px solid currentColor;
+}
+
+[aria-current="step"] {
+  font-weight: 700;
+  border-left: 4px solid currentColor;
+  padding-left: 8px;
+}

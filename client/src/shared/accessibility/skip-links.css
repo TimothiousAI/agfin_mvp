@@ -1,0 +1,38 @@
+/**
+ * Skip Links Styling
+ *
+ * Skip links allow keyboard users to bypass navigation and jump directly to main content
+ */
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 9999;
+  padding: 1rem 1.5rem;
+  background-color: #30714C;
+  color: white;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  outline: 2px solid #DDC66F;
+  outline-offset: 2px;
+}
+
+.skip-link:hover {
+  background-color: #265d3d;
+}
+
+/* Skip links container */
+.skip-links-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+}
