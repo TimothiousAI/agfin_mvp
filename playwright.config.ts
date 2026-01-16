@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:5174',
+    baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
     screenshot: 'on',
     video: 'retain-on-failure',
@@ -19,10 +19,18 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5174',
-    reuseExistingServer: true,
-    timeout: 120 * 1000,
-  },
+  webServer: [
+    {
+      command: 'npm run dev --workspace=client',
+      url: 'http://localhost:5173',
+      reuseExistingServer: true,
+      timeout: 120 * 1000,
+    },
+    {
+      command: 'npm run dev --workspace=server',
+      url: 'http://localhost:3001/health',
+      reuseExistingServer: true,
+      timeout: 120 * 1000,
+    },
+  ],
 });

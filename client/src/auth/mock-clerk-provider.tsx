@@ -9,6 +9,8 @@ import { createContext, useContext, useState } from 'react';
  *
  * IMPORTANT: This should only be used in development/demo mode.
  * Production should use real ClerkProvider.
+ *
+ * Note: RLS is bypassed in dev mode via service role key in database.ts
  */
 
 interface MockAuthContext {
@@ -62,12 +64,12 @@ export function MockClerkProvider({ children }: { children: ReactNode }) {
 
   // Helper to update sign-in state
   const updateSignInState = (signedIn: boolean) => {
-    setIsSignedIn(signedIn);
     if (signedIn) {
       sessionStorage.setItem('mock_clerk_signed_in', 'true');
     } else {
       sessionStorage.removeItem('mock_clerk_signed_in');
     }
+    setIsSignedIn(signedIn);
   };
 
   const authValue: MockAuthContext = {

@@ -2,30 +2,55 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../../../shared/types/database';
 
 /**
- * Client-side Supabase client with anon key
- * Respects RLS policies - users can only access their own data
- * Safe to use in browser code
+ * Client-side Supabase client
+ *
+ * In development with mock auth: uses service role key to bypass RLS
+ * In production: uses anon key and respects RLS policies
  */
 
 // Get config from environment variables (injected by Vite)
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
+// Use service role key in dev mode with mock auth to bypass RLS
+const useMockAuth = import.meta.env.VITE_USE_MOCK_AUTH === 'true';
+const isDev = import.meta.env.MODE === 'development';
+const serviceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
+
+// In dev mode with mock auth, use service role key to bypass RLS
+const supabaseKey = (isDev && useMockAuth && serviceRoleKey)
+  ? serviceRoleKey
+  : supabaseAnonKey;
+
+if (!supabaseUrl || !supabaseKey) {
   throw new Error(
     'Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY'
   );
 }
 
+if (isDev && useMockAuth && serviceRoleKey) {
+  console.log('[Database] Using service role key for dev mode (bypassing RLS)');
+}
+
 /**
  * Browser Supabase client singleton
  * Automatically handles authentication state
+ *
+ * In dev mode with service role key: Disable auth features since we're bypassing RLS
+ * In production: Full auth with session persistence
  */
+const useServiceRole = isDev && useMockAuth && serviceRoleKey;
+
 export const supabase: SupabaseClient<Database> = createClient<Database>(
   supabaseUrl,
-  supabaseAnonKey,
+  supabaseKey,
   {
-    auth: {
+    auth: useServiceRole ? {
+      // Service role bypasses RLS - disable session management to avoid JWT issues
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    } : {
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: true,
@@ -75,6 +100,23 @@ export async function signOut() {
 }
 
 export async function getCurrentUser() {
+  // In dev mode with mock auth, return a mock user
+  if (isDev && useMockAuth) {
+    // Check if user is "signed in" via mock auth
+    const isSignedIn = sessionStorage.getItem('mock_clerk_signed_in') === 'true';
+    if (isSignedIn) {
+      return {
+        id: 'dev-user-00000000-0000-0000-0000-000000000001',
+        email: import.meta.env.VITE_DEV_USER_EMAIL || 'dev@agrellus.local',
+        app_metadata: {},
+        user_metadata: { is_dev_user: true },
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      } as any;
+    }
+    return null;
+  }
+
   const { data: { user }, error } = await supabase.auth.getUser();
 
   if (error) throw error;

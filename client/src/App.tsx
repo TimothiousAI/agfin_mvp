@@ -5,13 +5,12 @@ import { ProtectedRoute, LoadingScreen } from './auth/ProtectedRoute';
 import { SkipLinks, AnnouncerProvider } from './shared/accessibility';
 import { lazyWithRetry, PerformanceMonitor, prefetchRoute } from './shared/performance';
 import { CommandPaletteProvider } from './shared/commands/CommandPaletteProvider';
-import { useCommandRegistration } from './shared/commands/useCommandRegistration';
-import { useAppCommands } from './application/shell/useAppCommands';
 import { TourProvider } from './application/onboarding';
 
 // Lazy load components for better code splitting
 // Main pages
 const SignInPage = lazyWithRetry(() => import('./auth/sign-in/SignInPage').then(m => ({ default: m.SignInPage })), 'SignInPage');
+const IntegratedChatPage = lazyWithRetry(() => import('./application/IntegratedChatPage').then(m => ({ default: m.IntegratedChatPage })), 'IntegratedChatPage');
 
 // Test pages (low priority, only load when needed)
 const FormComponentsTest = lazyWithRetry(() => import('./test/FormComponentsTest').then(m => ({ default: m.FormComponentsTest })), 'FormComponentsTest');
@@ -30,12 +29,14 @@ const PersistenceTest = lazyWithRetry(() => import('./test/PersistenceTest').the
 const SkeletonTest = lazyWithRetry(() => import('./test/SkeletonTest').then(m => ({ default: m.SkeletonTest })), 'SkeletonTest');
 const FieldIndicatorsTest = lazyWithRetry(() => import('./test/FieldIndicatorsTest').then(m => ({ default: m.FieldIndicatorsTest })), 'FieldIndicatorsTest');
 
-// Chat page components (loaded eagerly for shell, defer heavy components)
+// Chat page components for demo (kept for reference)
 import { AppLayout } from './application/shell/AppLayout';
 import { ConversationSidebar } from './application/shell/ConversationSidebar';
 import { ChatCenter } from './application/shell/ChatCenter';
 import { ArtifactPanel, ArtifactContent } from './application/shell/ArtifactPanel';
 import { usePanelStore } from './application/shell/usePanelStore';
+import { useCommandRegistration } from './shared/commands/useCommandRegistration';
+import { useAppCommands } from './application/shell/useAppCommands';
 
 function App() {
   // Prefetch likely next views on idle
@@ -56,8 +57,10 @@ function App() {
           <Suspense fallback={<LoadingScreen />}>
             <Routes>
               <Route path="/sign-in" element={<SignInPage />} />
-              <Route path="/chat" element={<ProtectedRoute><TourProvider><ChatPage /></TourProvider></ProtectedRoute>} />
-              <Route path="/app" element={<ProtectedRoute><TourProvider><ChatPage /></TourProvider></ProtectedRoute>} />
+              <Route path="/chat" element={<ProtectedRoute><TourProvider><IntegratedChatPage /></TourProvider></ProtectedRoute>} />
+              <Route path="/app" element={<ProtectedRoute><TourProvider><IntegratedChatPage /></TourProvider></ProtectedRoute>} />
+              {/* Demo route with mock data for development */}
+              <Route path="/demo" element={<ProtectedRoute><TourProvider><DemoChatPage /></TourProvider></ProtectedRoute>} />
               <Route path="/test/forms" element={<FormComponentsTest />} />
               <Route path="/test/alerts" element={<AlertToastTest />} />
               <Route path="/test/badges" element={<BadgeTest />} />
@@ -88,8 +91,8 @@ function RootRedirect() {
   return <Navigate to={isSignedIn ? '/chat' : '/sign-in'} replace />;
 }
 
-// Memoize ChatPage to prevent unnecessary re-renders
-const ChatPage = memo(function ChatPage() {
+// Memoize DemoChatPage - original mock implementation kept for development
+const DemoChatPage = memo(function DemoChatPage() {
   const { user: _user, signOut: _signOut } = useAuth();
   const setArtifactPanelOpen = usePanelStore((state) => state.setArtifactPanelOpen);
 
