@@ -1,7 +1,6 @@
 import { logger } from '../../core/logging';
 import {
   DocumentTypeName,
-  DocumentTypeSchema,
   validateDocumentData,
 } from './types';
 
@@ -389,7 +388,7 @@ export class ExtractionService {
    * Extract Equipment List fields from text and tables
    */
   private extractEquipmentListFields(
-    text: string,
+    _text: string,
     tables?: DoclingTable[]
   ): Record<string, any> {
     const fields: Record<string, any> = {

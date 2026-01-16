@@ -9,7 +9,8 @@
  * - Navigation changes
  */
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * Politeness levels for announcements
@@ -257,7 +258,7 @@ export function useAnnounceOnMount(message: string, politeness: PolitenessLevel 
  */
 export function useAnnounceOnChange(
   value: string | number | boolean | null | undefined,
-  getMessage: (value: typeof value) => string,
+  getMessage: (value: any) => string,
   politeness: PolitenessLevel = 'polite'
 ) {
   const { announce } = useAnnouncer();

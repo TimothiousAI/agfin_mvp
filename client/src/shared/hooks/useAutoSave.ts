@@ -129,7 +129,7 @@ export function useAutoSave<T>({
   const dataRef = useRef(data);
   const serverVersionRef = useRef(serverVersion);
   const isSavingRef = useRef(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Update refs when data/version changes
   useEffect(() => {

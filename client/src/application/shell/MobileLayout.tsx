@@ -1,4 +1,5 @@
-import { ReactNode, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Menu,
   X,
@@ -6,7 +7,6 @@ import {
   FileText,
   Settings,
   ChevronUp,
-  Home
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePanelStore } from './usePanelStore';

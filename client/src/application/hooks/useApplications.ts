@@ -190,7 +190,7 @@ export function useUpdateApplicationStatus() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: Application['status'] }) =>
       updateApplicationStatus(id, { status }),
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       // Invalidate both the list and the specific application
       queryClient.invalidateQueries({ queryKey: ['applications'] });
       queryClient.invalidateQueries({ queryKey: ['applications', variables.id] });
@@ -229,7 +229,7 @@ export function useUpdateApplication() {
       const result = await response.json();
       return result.application;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       // Invalidate both the list and the specific application
       queryClient.invalidateQueries({ queryKey: ['applications'] });
       queryClient.invalidateQueries({ queryKey: ['applications', variables.id] });

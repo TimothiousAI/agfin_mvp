@@ -260,8 +260,8 @@ export function useProgressUpdates(
    */
   useEffect(() => {
     let ws: WebSocket | null = null;
-    let reconnectTimer: NodeJS.Timeout | null = null;
-    let pollingTimer: NodeJS.Timeout | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let pollingTimer: ReturnType<typeof setInterval> | null = null;
 
     const connectWebSocket = () => {
       try {

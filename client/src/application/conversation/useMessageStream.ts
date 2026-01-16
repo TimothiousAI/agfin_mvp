@@ -60,7 +60,7 @@ export function useMessageStream({
   const eventSourceRef = useRef<EventSource | null>(null);
   const isStreamingRef = useRef(false);
   const retryCountRef = useRef(0);
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorRef = useRef<string | null>(null);
 
   // Cleanup function

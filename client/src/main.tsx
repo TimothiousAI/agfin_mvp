@@ -12,9 +12,11 @@ import App from './App.tsx'
 import { initReducedMotionListener } from './shared/accessibility'
 
 // Use mock provider for development if no Clerk key is configured
+// Or if VITE_USE_MOCK_AUTH is explicitly set to 'true' (dev bypass)
 const hasClerkKey = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 const isDev = import.meta.env.MODE === 'development';
-const useMockAuth = isDev && !hasClerkKey;
+const forceMockAuth = import.meta.env.VITE_USE_MOCK_AUTH === 'true';
+const useMockAuth = forceMockAuth || (isDev && !hasClerkKey);
 
 if (useMockAuth) {
   console.warn('[Dev Mode] Using mock Clerk provider - no real authentication');

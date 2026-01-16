@@ -13,8 +13,8 @@ export function PanelResizer({
   onResize,
   onDoubleClick,
   direction = 'horizontal',
-  minWidth,
-  maxWidth,
+  minWidth: _minWidth,
+  maxWidth: _maxWidth,
   className = '',
 }: PanelResizerProps) {
   const [isDragging, setIsDragging] = useState(false);

@@ -19,8 +19,13 @@
     "clean": "rm -rf node_modules client/node_modules server/node_modules client/dist server/dist"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "concurrently": "^9.1.2",
-    "playwright": "^1.57.0"
+    "lightningcss": "^1.30.2",
+    "playwright": "^1.57.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "web-vitals": "^5.1.0"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -29,5 +34,8 @@
   "dependencies": {
     "@rollup/rollup-win32-x64-msvc": "^4.55.1",
     "yaml": "^2.8.2"
+  },
+  "optionalDependencies": {
+    "lightningcss-win32-x64-msvc": "^1.30.2"
   }
 }

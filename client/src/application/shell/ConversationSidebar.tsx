@@ -56,6 +56,7 @@ export function ConversationSidebar({
       <div className="p-4 flex-shrink-0">
         <button
           onClick={onNewConversation}
+          aria-label="Start new conversation"
           className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#30714C] hover:bg-[#3d8a5f] text-white font-medium rounded-lg transition-colors"
         >
           <Plus size={20} />
@@ -77,6 +78,7 @@ export function ConversationSidebar({
               <button
                 key={session.id}
                 onClick={() => onSelectSession?.(session.id)}
+                aria-label={`Open conversation: ${session.title}`}
                 className={`
                   w-full text-left px-3 py-3 rounded-lg transition-colors
                   ${

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { Loader2, AlertCircle } from 'lucide-react';
 
 // Lazy load heavy components for better performance
@@ -163,7 +163,7 @@ export default function ArtifactContent({
               documentType={extractionArtifact.data.documentType}
               fields={extractionArtifact.data.fields}
               overallConfidence={extractionArtifact.data.overallConfidence}
-              showActions={!extractionArtifact.data.readOnly}
+              showActions={!(extractionArtifact.data as any).readOnly}
               onAcceptField={(field) => {
                 console.log('Field accepted:', field);
                 // TODO: Call API to accept field
@@ -240,11 +240,7 @@ export default function ArtifactContent({
           const moduleArtifact = artifact as ModuleArtifact;
           return (
             <M5SummaryForm
-              initialData={moduleArtifact.data.initialData}
-              fieldMetadata={moduleArtifact.data.fieldMetadata}
-              readOnly={moduleArtifact.data.readOnly}
-              showConfidence={moduleArtifact.data.showConfidence}
-              onChange={onChange}
+              inputData={moduleArtifact.data.initialData}
               onSubmit={onSubmit}
             />
           );

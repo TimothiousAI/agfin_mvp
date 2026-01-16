@@ -297,11 +297,11 @@ function rateMetric(
  */
 export async function initWebVitalsTracking(): Promise<void> {
   try {
-    // Try to import web-vitals library
+    // @ts-ignore - web-vitals types
     const webVitals = await import('web-vitals');
 
     // Track LCP (Largest Contentful Paint)
-    webVitals.onLCP((metric) => {
+    webVitals.onLCP((metric: any) => {
       metricsStore.recordWebVital({
         name: 'LCP',
         value: metric.value,
@@ -311,19 +311,21 @@ export async function initWebVitalsTracking(): Promise<void> {
       });
     });
 
-    // Track FID (First Input Delay) - deprecated, use INP
-    webVitals.onFID((metric) => {
-      metricsStore.recordWebVital({
-        name: 'FID',
-        value: metric.value,
-        rating: rateMetric('FID', metric.value),
-        timestamp: Date.now(),
-        url: window.location.href,
+    // Track FID (First Input Delay) - deprecated in web-vitals v4, use INP
+    if ('onFID' in webVitals) {
+      (webVitals as any).onFID((metric: any) => {
+        metricsStore.recordWebVital({
+          name: 'FID',
+          value: metric.value,
+          rating: rateMetric('FID', metric.value),
+          timestamp: Date.now(),
+          url: window.location.href,
+        });
       });
-    });
+    }
 
     // Track CLS (Cumulative Layout Shift)
-    webVitals.onCLS((metric) => {
+    webVitals.onCLS((metric: any) => {
       metricsStore.recordWebVital({
         name: 'CLS',
         value: metric.value,
@@ -334,7 +336,7 @@ export async function initWebVitalsTracking(): Promise<void> {
     });
 
     // Track FCP (First Contentful Paint)
-    webVitals.onFCP((metric) => {
+    webVitals.onFCP((metric: any) => {
       metricsStore.recordWebVital({
         name: 'FCP',
         value: metric.value,
@@ -345,7 +347,7 @@ export async function initWebVitalsTracking(): Promise<void> {
     });
 
     // Track TTFB (Time to First Byte)
-    webVitals.onTTFB((metric) => {
+    webVitals.onTTFB((metric: any) => {
       metricsStore.recordWebVital({
         name: 'TTFB',
         value: metric.value,

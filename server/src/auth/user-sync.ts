@@ -128,7 +128,7 @@ export async function getSupabaseUserId(clerkUserId: string): Promise<string | n
  * app.get('/api/protected', requireAuth(), autoSyncUser(), handler);
  */
 export function autoSyncUser() {
-  return async (req: Request, res: any, next: any) => {
+  return async (req: Request, _res: any, next: any) => {
     const supabaseUserId = await ensureUserExists(req);
 
     if (!supabaseUserId) {

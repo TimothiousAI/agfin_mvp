@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './index';
 
@@ -139,7 +139,6 @@ export function ProtectedRoute({
   loadingComponent,
 }: ProtectedRouteProps) {
   const { isSignedIn, isLoaded } = useAuth();
-  const location = useLocation();
 
   // Show loading screen while checking auth state
   if (!isLoaded) {

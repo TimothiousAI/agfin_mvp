@@ -40,8 +40,8 @@ export async function createApplication(
 ) {
   const supabase = getSupabaseAdmin();
 
-  const { data: application, error } = await supabase
-    .from('applications')
+  const { data: application, error } = await (supabase
+    .from('applications') as any)
     .insert({
       ...data,
       analyst_id: analystId,
@@ -67,8 +67,8 @@ export async function getApplications(
   const { status, limit, offset } = filters;
 
   // Build query with RLS filter by analyst_id and optional status filter
-  let query = supabase
-    .from('applications')
+  let query = (supabase
+    .from('applications') as any)
     .select(
       `
       *,
@@ -94,14 +94,14 @@ export async function getApplications(
   const enhancedApplications = await Promise.all(
     (applications || []).map(async (app: any) => {
       // Get module completion stats
-      const { data: moduleData } = await supabase
-        .from('module_data')
+      const { data: moduleData } = await (supabase
+        .from('module_data') as any)
         .select('module_number')
         .eq('application_id', app.id);
 
       // Calculate unique modules with data (assuming 13 total modules)
       const completedModules = new Set(
-        moduleData?.map((m) => m.module_number) || []
+        moduleData?.map((m: any) => m.module_number) || []
       );
       const totalModules = 13;
       const completionPercentage = Math.round(
@@ -133,8 +133,8 @@ export async function getApplicationById(id: string, analystId: string) {
   const supabase = getSupabaseAdmin();
 
   // Query application with RLS check (analyst_id must match analystId)
-  const { data: application, error } = await supabase
-    .from('applications')
+  const { data: application, error } = await (supabase
+    .from('applications') as any)
     .select('*')
     .eq('id', id)
     .eq('analyst_id', analystId)
@@ -148,15 +148,15 @@ export async function getApplicationById(id: string, analystId: string) {
   }
 
   // Get all related documents
-  const { data: documents } = await supabase
-    .from('documents')
+  const { data: documents } = await (supabase
+    .from('documents') as any)
     .select('*')
     .eq('application_id', id)
     .order('created_at', { ascending: false });
 
   // Get all module_data entries grouped by module
-  const { data: moduleData } = await supabase
-    .from('module_data')
+  const { data: moduleData } = await (supabase
+    .from('module_data') as any)
     .select('*')
     .eq('application_id', id)
     .order('module_number', { ascending: true });
@@ -164,7 +164,7 @@ export async function getApplicationById(id: string, analystId: string) {
   // Calculate completion status for each module (1-13)
   const moduleCompletion = Array.from({ length: 13 }, (_, i) => {
     const moduleNumber = i + 1;
-    const fields = moduleData?.filter((m) => m.module_number === moduleNumber) || [];
+    const fields = moduleData?.filter((m: any) => m.module_number === moduleNumber) || [];
 
     return {
       module_number: moduleNumber,
@@ -192,8 +192,8 @@ export async function updateApplication(
 ) {
   const supabase = getSupabaseAdmin();
 
-  const { data: application, error } = await supabase
-    .from('applications')
+  const { data: application, error } = await (supabase
+    .from('applications') as any)
     .update({
       ...data,
       updated_at: new Date().toISOString(),
@@ -224,8 +224,8 @@ export async function updateApplicationStatus(
   const supabase = getSupabaseAdmin();
 
   // First, get current application to check current status
-  const { data: currentApp, error: fetchError } = await supabase
-    .from('applications')
+  const { data: currentApp, error: fetchError } = await (supabase
+    .from('applications') as any)
     .select('status, analyst_id')
     .eq('id', id)
     .eq('analyst_id', analystId)
@@ -248,8 +248,8 @@ export async function updateApplicationStatus(
   }
 
   // Update status
-  const { data: application, error: updateError } = await supabase
-    .from('applications')
+  const { data: application, error: updateError } = await (supabase
+    .from('applications') as any)
     .update({
       status: newStatus,
       updated_at: new Date().toISOString(),
@@ -276,8 +276,8 @@ export async function updateApplicationStatus(
 export async function deleteApplication(id: string, analystId: string) {
   const supabase = getSupabaseAdmin();
 
-  const { data: application, error } = await supabase
-    .from('applications')
+  const { data: application, error } = await (supabase
+    .from('applications') as any)
     .update({
       status: 'locked',
       updated_at: new Date().toISOString(),

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { AnimatePresence as FramerAnimatePresence } from 'framer-motion';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import {
   fadeVariants,
   slideUpVariants,

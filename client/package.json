@@ -60,5 +60,8 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"
+  },
+  "optionalDependencies": {
+    "lightningcss-win32-x64-msvc": "^1.30.2"
   }
 }

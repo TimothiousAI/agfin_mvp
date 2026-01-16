@@ -39,11 +39,11 @@ export function PersistenceTest() {
       setFormData(data);
       addLog(`✅ Restored data from ${new Date(metadata.savedAt).toLocaleTimeString()}`);
     },
-    onStaleData: (data, metadata) => {
+    onStaleData: (_data, metadata) => {
       const age = Math.round((Date.now() - metadata.savedAt) / 1000);
       addLog(`⚠️ Stale data detected (${age}s old)`);
     },
-    onConflict: (localData, serverVer) => {
+    onConflict: (_localData, serverVer) => {
       addLog(`⚠️ Conflict: Local vs Server (${serverVer})`);
     },
   });

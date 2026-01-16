@@ -98,7 +98,7 @@ router.post(
         return;
       }
 
-      const { documentId } = req.params;
+      const documentId = String(req.params.documentId);
       const { field_id, old_value, new_value, justification, notes } = req.body;
 
       logger.info('Field override requested', {
@@ -111,8 +111,8 @@ router.post(
       const supabase = getSupabaseAdmin();
 
       // Get document to find application_id
-      const { data: document, error: docError } = await supabase
-        .from('documents')
+      const { data: document, error: docError } = await (supabase
+        .from('documents') as any)
         .select('application_id')
         .eq('id', documentId)
         .single();
@@ -137,7 +137,7 @@ router.post(
         field_id,
         old_value: old_value !== null && old_value !== undefined ? String(old_value) : null,
         new_value: new_value !== null && new_value !== undefined ? String(new_value) : null,
-        justification: dbJustification,
+        justification: dbJustification as any,
         action: notes ? `field_override: ${notes}` : 'field_override',
       });
 
@@ -149,8 +149,8 @@ router.post(
 
       // Update module_data field value
       // Find the module_data record containing this field
-      const { data: moduleDataRecords, error: moduleError } = await supabase
-        .from('module_data')
+      const { data: moduleDataRecords, error: moduleError } = await (supabase
+        .from('module_data') as any)
         .select('*')
         .eq('application_id', applicationId);
 
@@ -169,8 +169,8 @@ router.post(
         // Check if this record's field_id matches
         if (record.field_id === field_id) {
           // Update the record with new value and source
-          const { data: updated, error: updateError } = await supabase
-            .from('module_data')
+          const { data: updated, error: updateError } = await (supabase
+            .from('module_data') as any)
             .update({
               value: new_value,
               source: 'proxy_edited',
@@ -252,7 +252,7 @@ router.post(
         return;
       }
 
-      const { documentId } = req.params;
+      const documentId = String(req.params.documentId);
 
       logger.info('Mark document as audited requested', {
         documentId,
@@ -262,8 +262,8 @@ router.post(
       const supabase = getSupabaseAdmin();
 
       // Get document with application_id
-      const { data: document, error: docError } = await supabase
-        .from('documents')
+      const { data: document, error: docError } = await (supabase
+        .from('documents') as any)
         .select('id, application_id, extraction_status, confidence_score')
         .eq('id', documentId)
         .single();
@@ -288,8 +288,8 @@ router.post(
       const applicationId = document.application_id;
 
       // Get all module_data fields for this application that came from this document
-      const { data: moduleDataRecords, error: moduleError } = await supabase
-        .from('module_data')
+      const { data: moduleDataRecords, error: moduleError } = await (supabase
+        .from('module_data') as any)
         .select('*')
         .eq('application_id', applicationId)
         .eq('source_document_id', documentId);
@@ -336,8 +336,8 @@ router.post(
       }
 
       // Update document status to 'audited'
-      const { data: updatedDocument, error: updateError } = await supabase
-        .from('documents')
+      const { data: updatedDocument, error: updateError } = await (supabase
+        .from('documents') as any)
         .update({
           extraction_status: 'audited',
         })
@@ -418,9 +418,9 @@ router.get(
         return;
       }
 
-      const { applicationId } = req.params;
-      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
-      const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : 0;
+      const applicationId = String(req.params.applicationId);
+      const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : 50;
+      const offset = req.query.offset ? parseInt(String(req.query.offset), 10) : 0;
 
       // Validate pagination params
       if (isNaN(limit) || limit < 1 || limit > 100) {

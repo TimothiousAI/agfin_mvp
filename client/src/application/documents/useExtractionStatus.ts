@@ -89,10 +89,10 @@ export function useExtractionStatus(
   const [error, setError] = useState<string | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
 
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startTimeRef = useRef<number | null>(null);
-  const elapsedTimeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const elapsedTimeIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * Fetch current extraction status from API

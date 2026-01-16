@@ -40,8 +40,7 @@ export async function exportAuditTrailCSV(
   const supabase = getSupabaseAdmin();
 
   // Fetch all audit trail entries
-  const { data: auditEntries, error } = await supabase
-    .from('audit_trail')
+  const { data: auditEntries, error } = await (supabase.from('audit_trail') as any)
     .select('*')
     .eq('application_id', applicationId)
     .order('created_at', { ascending: true });
@@ -168,8 +167,7 @@ export async function exportModuleDataCSV(
   const supabase = getSupabaseAdmin();
 
   // Fetch all module data
-  const { data: moduleData, error } = await supabase
-    .from('module_data')
+  const { data: moduleData, error } = await (supabase.from('module_data') as any)
     .select('*')
     .eq('application_id', applicationId)
     .order('module_number', { ascending: true })
@@ -249,8 +247,7 @@ export async function exportApplicationDataCSV(
   const supabase = getSupabaseAdmin();
 
   // Fetch application
-  const { data: application, error: appError } = await supabase
-    .from('applications')
+  const { data: application, error: appError } = await (supabase.from('applications') as any)
     .select('*')
     .eq('id', applicationId)
     .single();
@@ -260,14 +257,12 @@ export async function exportApplicationDataCSV(
   }
 
   // Fetch document count
-  const { count: documentCount } = await supabase
-    .from('documents')
+  const { count: documentCount } = await (supabase.from('documents') as any)
     .select('*', { count: 'exact', head: true })
     .eq('application_id', applicationId);
 
   // Fetch audited document count
-  const { count: auditedCount } = await supabase
-    .from('documents')
+  const { count: auditedCount } = await (supabase.from('documents') as any)
     .select('*', { count: 'exact', head: true })
     .eq('application_id', applicationId)
     .eq('audit_status', 'audited');
@@ -333,8 +328,7 @@ export async function createExportPackage(
   const supabase = getSupabaseAdmin();
 
   // Fetch application data
-  const { data: application, error: appError } = await supabase
-    .from('applications')
+  const { data: application, error: appError } = await (supabase.from('applications') as any)
     .select('*')
     .eq('id', applicationId)
     .single();

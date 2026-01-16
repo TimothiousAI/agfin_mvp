@@ -4,7 +4,6 @@
 
 import { useState } from 'react';
 import {
-  Skeleton,
   SkeletonShimmer,
   SkeletonText,
   SkeletonCard,

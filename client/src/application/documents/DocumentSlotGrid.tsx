@@ -1,5 +1,5 @@
-import React from 'react';
-import { DOCUMENT_TYPES, DocumentType } from './DocumentTypeSelector';
+import { DOCUMENT_TYPES } from './DocumentTypeSelector';
+import type { DocumentType } from './DocumentTypeSelector';
 
 export type DocumentStatus = 'empty' | 'uploaded' | 'processing' | 'processed' | 'audited';
 

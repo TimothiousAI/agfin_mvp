@@ -3,9 +3,6 @@ import { AnimatePresence, Fade, SlideUp, Panel, Scale, motion } from '@/shared/u
 import { Button } from '@/shared/ui/button';
 import { Card, CardHeader, CardContent, CardFooter } from '@/shared/ui/card';
 import {
-  fadeVariants,
-  slideUpVariants,
-  scaleVariants,
   staggerContainer,
   staggerItem,
   rotateVariants,

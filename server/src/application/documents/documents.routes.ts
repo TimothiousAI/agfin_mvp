@@ -21,8 +21,6 @@ const DOCUMENT_TYPES = [
   'equipment_list'
 ] as const;
 
-type DocumentType = typeof DOCUMENT_TYPES[number];
-
 // Validation schema for upload URL request
 const uploadUrlSchema = z.object({
   document_type: z.enum(DOCUMENT_TYPES),
@@ -50,7 +48,7 @@ router.post('/upload-url', requireAuth(), async (req: Request, res: Response) =>
     if (!validation.success) {
       res.status(400).json({
         error: 'Invalid request',
-        details: validation.error.errors
+        details: validation.error.issues
       });
       return;
     }
@@ -60,8 +58,7 @@ router.post('/upload-url', requireAuth(), async (req: Request, res: Response) =>
     const supabase = getSupabaseAdmin();
 
     // Verify application exists and user has access
-    const { data: application, error: appError } = await supabase
-      .from('applications')
+    const { data: application, error: appError } = await (supabase.from('applications') as any)
       .select('id, analyst_id')
       .eq('id', application_id)
       .single();
@@ -83,8 +80,7 @@ router.post('/upload-url', requireAuth(), async (req: Request, res: Response) =>
     const storagePath = `applications/${application_id}/${document_type}/${timestamp}_${sanitizedFilename}`;
 
     // Create pending document record
-    const { data: document, error: docError } = await supabase
-      .from('documents')
+    const { data: document, error: docError } = await (supabase.from('documents') as any)
       .insert({
         application_id,
         document_type: 'other', // Map to existing enum until migration updates
@@ -119,8 +115,7 @@ router.post('/upload-url', requireAuth(), async (req: Request, res: Response) =>
       console.error('Failed to generate upload URL:', uploadError);
 
       // Clean up the document record we just created
-      await supabase
-        .from('documents')
+      await (supabase.from('documents') as any)
         .delete()
         .eq('id', document.id);
 
@@ -156,7 +151,7 @@ router.get('/:id', requireAuth(), async (req: Request, res: Response) => {
       return;
     }
 
-    const documentId = req.params.id;
+    const documentId = String(req.params.id);
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -168,8 +163,7 @@ router.get('/:id', requireAuth(), async (req: Request, res: Response) => {
     const supabase = getSupabaseAdmin();
 
     // Fetch document with application info
-    const { data: document, error: docError } = await supabase
-      .from('documents')
+    const { data: document, error: docError } = await (supabase.from('documents') as any)
       .select(`
         id,
         application_id,
@@ -258,7 +252,7 @@ router.post('/:id/process', requireAuth(), async (req: Request, res: Response) =
       return;
     }
 
-    const documentId = req.params.id;
+    const documentId = String(req.params.id);
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -270,8 +264,7 @@ router.post('/:id/process', requireAuth(), async (req: Request, res: Response) =
     const supabase = getSupabaseAdmin();
 
     // Fetch document with application info
-    const { data: document, error: docError } = await supabase
-      .from('documents')
+    const { data: document, error: docError } = await (supabase.from('documents') as any)
       .select(`
         id,
         application_id,
@@ -325,8 +318,7 @@ router.post('/:id/process', requireAuth(), async (req: Request, res: Response) =
     }
 
     // Update status to processing
-    const { error: updateError } = await supabase
-      .from('documents')
+    const { error: updateError } = await (supabase.from('documents') as any)
       .update({
         extraction_status: 'processing',
         metadata: {
@@ -358,8 +350,7 @@ router.post('/:id/process', requireAuth(), async (req: Request, res: Response) =
       });
 
       // Revert status back
-      await supabase
-        .from('documents')
+      await (supabase.from('documents') as any)
         .update({ extraction_status: 'uploaded' })
         .eq('id', documentId);
 
@@ -425,14 +416,13 @@ async function processDocumentAsync(
     });
 
     // Update document with extracted data
-    const { error: updateError } = await supabase
-      .from('documents')
+    const { error: updateError } = await (supabase.from('documents') as any)
       .update({
         extraction_status: 'completed',
         extracted_data: result.result,
         confidence_score: result.result?.metadata?.confidence || null,
         metadata: {
-          ...((await supabase.from('documents').select('metadata').eq('id', documentId).single()).data?.metadata || {}),
+          ...((await (supabase.from('documents') as any).select('metadata').eq('id', documentId).single()).data?.metadata || {}),
           processing_completed_at: new Date().toISOString(),
           docling_job_id: result.job_id,
         },
@@ -455,12 +445,11 @@ async function processDocumentAsync(
     });
 
     // Update document status to failed
-    await supabase
-      .from('documents')
+    await (supabase.from('documents') as any)
       .update({
         extraction_status: 'failed',
         metadata: {
-          ...((await supabase.from('documents').select('metadata').eq('id', documentId).single()).data?.metadata || {}),
+          ...((await (supabase.from('documents') as any).select('metadata').eq('id', documentId).single()).data?.metadata || {}),
           processing_failed_at: new Date().toISOString(),
           error_message: error instanceof Error ? error.message : 'Unknown error',
         },
@@ -483,7 +472,7 @@ router.get('/:id/extraction', requireAuth(), async (req: Request, res: Response)
       return;
     }
 
-    const documentId = req.params.id;
+    const documentId = String(req.params.id);
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -495,8 +484,7 @@ router.get('/:id/extraction', requireAuth(), async (req: Request, res: Response)
     const supabase = getSupabaseAdmin();
 
     // Fetch document with application info to verify ownership
-    const { data: document, error: docError } = await supabase
-      .from('documents')
+    const { data: document, error: docError } = await (supabase.from('documents') as any)
       .select(`
         id,
         application_id,
@@ -612,7 +600,7 @@ router.get('/:id/extraction-failures', requireAuth(), async (req: Request, res: 
       return;
     }
 
-    const documentId = req.params.id;
+    const documentId = String(req.params.id);
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -663,7 +651,7 @@ router.post('/:id/bypass-extraction', requireAuth(), async (req: Request, res: R
       return;
     }
 
-    const documentId = req.params.id;
+    const documentId = String(req.params.id);
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -690,8 +678,7 @@ router.post('/:id/bypass-extraction', requireAuth(), async (req: Request, res: R
     }
 
     // Fetch document to verify ownership
-    const { data: document, error: docError } = await supabase
-      .from('documents')
+    const { data: document, error: docError } = await (supabase.from('documents') as any)
       .select(`
         id,
         application_id,
@@ -713,12 +700,11 @@ router.post('/:id/bypass-extraction', requireAuth(), async (req: Request, res: R
     }
 
     // Update document to manual entry mode
-    const { error: updateError } = await supabase
-      .from('documents')
+    const { error: updateError } = await (supabase.from('documents') as any)
       .update({
         extraction_status: 'manual_entry',
         metadata: {
-          ...((await supabase.from('documents').select('metadata').eq('id', documentId).single()).data?.metadata || {}),
+          ...((await (supabase.from('documents') as any).select('metadata').eq('id', documentId).single()).data?.metadata || {}),
           bypassed_at: new Date().toISOString(),
           bypassed_by: auth.userId,
         },

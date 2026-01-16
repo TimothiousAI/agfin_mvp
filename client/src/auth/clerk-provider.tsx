@@ -1,5 +1,5 @@
 import { ClerkProvider as ClerkProviderBase } from '@clerk/clerk-react';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * ClerkProvider wrapper component for Agrellus AgFin MVP

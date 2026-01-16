@@ -45,7 +45,7 @@ router.get(
   validateParams(UUIDParamSchema),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { applicationId } = req.params;
+      const applicationId = String(req.params.applicationId);
       const auth = getAuth(req);
       const userId = auth.userId;
 
@@ -89,7 +89,7 @@ router.get(
   validateParams(UUIDParamSchema),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { applicationId } = req.params;
+      const applicationId = String(req.params.applicationId);
       const auth = getAuth(req);
       const userId = auth.userId;
 
@@ -142,7 +142,7 @@ router.post(
   validateBody(CertificationRequestSchema),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { applicationId } = req.params;
+      const applicationId = String(req.params.applicationId);
       const { certification_confirmed } = req.body;
       const auth = getAuth(req);
       const userId = auth.userId;
@@ -206,7 +206,7 @@ router.post(
       // Additional audit entry for the certification action itself
       const { getSupabaseAdmin } = await import('../../core/database');
       const supabase = getSupabaseAdmin();
-      await supabase.from('audit_trail').insert({
+      await (supabase.from('audit_trail') as any).insert({
         application_id: applicationId,
         user_id: userId,
         field_id: null,
@@ -289,7 +289,7 @@ router.get(
   validateParams(UUIDParamSchema),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { applicationId } = req.params;
+      const applicationId = String(req.params.applicationId);
       const auth = getAuth(req);
       const userId = auth.userId;
       const regenerate = req.query.regenerate === 'true';
@@ -307,8 +307,8 @@ router.get(
       // Verify application is certified
       const { getSupabaseAdmin } = await import('../../core/database');
       const supabase = getSupabaseAdmin();
-      const { data: application, error: appError } = await supabase
-        .from('applications')
+      const { data: application, error: appError } = await (supabase
+        .from('applications') as any)
         .select('status, certified_at')
         .eq('id', applicationId)
         .single();
@@ -372,7 +372,7 @@ router.post(
   validateParams(UUIDParamSchema),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { applicationId } = req.params;
+      const applicationId = String(req.params.applicationId);
       const auth = getAuth(req);
       const userId = auth.userId;
 
@@ -389,8 +389,8 @@ router.post(
       // Verify application is certified
       const { getSupabaseAdmin } = await import('../../core/database');
       const supabase = getSupabaseAdmin();
-      const { data: application, error: appError } = await supabase
-        .from('applications')
+      const { data: application, error: appError } = await (supabase
+        .from('applications') as any)
         .select('status, certified_at')
         .eq('id', applicationId)
         .single();
@@ -453,7 +453,7 @@ router.get(
   validateParams(UUIDParamSchema),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { applicationId } = req.params;
+      const applicationId = String(req.params.applicationId);
       const auth = getAuth(req);
       const userId = auth.userId;
 
@@ -470,8 +470,8 @@ router.get(
       // Verify application exists
       const { getSupabaseAdmin } = await import('../../core/database');
       const supabase = getSupabaseAdmin();
-      const { data: application, error: appError } = await supabase
-        .from('applications')
+      const { data: application, error: appError } = await (supabase
+        .from('applications') as any)
         .select('id, farmer_name')
         .eq('id', applicationId)
         .single();
@@ -522,7 +522,7 @@ router.get(
   validateParams(UUIDParamSchema),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { applicationId } = req.params;
+      const applicationId = String(req.params.applicationId);
       const auth = getAuth(req);
       const userId = auth.userId;
 
@@ -539,8 +539,8 @@ router.get(
       // Verify application exists
       const { getSupabaseAdmin } = await import('../../core/database');
       const supabase = getSupabaseAdmin();
-      const { data: application, error: appError } = await supabase
-        .from('applications')
+      const { data: application, error: appError } = await (supabase
+        .from('applications') as any)
         .select('id')
         .eq('id', applicationId)
         .single();
@@ -596,7 +596,7 @@ router.get(
   validateParams(UUIDParamSchema),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { applicationId } = req.params;
+      const applicationId = String(req.params.applicationId);
       const auth = getAuth(req);
       const userId = auth.userId;
 
@@ -613,8 +613,8 @@ router.get(
       // Verify application exists
       const { getSupabaseAdmin } = await import('../../core/database');
       const supabase = getSupabaseAdmin();
-      const { data: application, error: appError } = await supabase
-        .from('applications')
+      const { data: application, error: appError } = await (supabase
+        .from('applications') as any)
         .select('id, farmer_name')
         .eq('id', applicationId)
         .single();
@@ -666,7 +666,7 @@ router.get(
   validateParams(UUIDParamSchema),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { applicationId } = req.params;
+      const applicationId = String(req.params.applicationId);
       const auth = getAuth(req);
       const userId = auth.userId;
 

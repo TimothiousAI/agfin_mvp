@@ -7,9 +7,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+} from '@/shared/ui/dialog';
+import { Button } from '@/shared/ui/button';
+import { Checkbox } from '@/shared/ui/checkbox';
 
 /**
  * Application summary for certification

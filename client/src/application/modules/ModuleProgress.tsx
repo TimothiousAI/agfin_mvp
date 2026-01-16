@@ -173,7 +173,7 @@ export interface ModuleProgressProps {
  * - Color-coded status (incomplete, partial, complete)
  */
 export default function ModuleProgress({
-  applicationId,
+  applicationId: _applicationId,
   moduleStatuses = [],
   onModuleClick,
   activeModule,

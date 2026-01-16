@@ -1,5 +1,6 @@
-import { ReactNode, useState, useEffect, useRef } from 'react';
-import { Plus, Upload, MessageSquare, X } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
+import { Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FABAction {

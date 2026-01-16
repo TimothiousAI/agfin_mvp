@@ -21,7 +21,8 @@ export default defineConfig({
   },
   build: {
     // Target modern browsers for better tree-shaking
-    target: 'es2020',
+    // Using esnext to support top-level await (used by Clerk dynamic import)
+    target: 'esnext',
 
     // Optimize chunk splitting
     rollupOptions: {
@@ -78,10 +79,6 @@ export default defineConfig({
 
     // Compression and optimization (using esbuild for better Vite support)
     minify: 'esbuild',
-    // Drop console statements in production
-    esbuild: {
-      drop: ['console', 'debugger'],
-    },
 
     // Source maps for production debugging (optional)
     sourcemap: false,
@@ -91,6 +88,11 @@ export default defineConfig({
 
     // CSS code splitting
     cssCodeSplit: true,
+  },
+
+  // Drop console statements in production
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
 
   // Performance optimizations for development

@@ -35,12 +35,12 @@ router.get(
         return;
       }
 
-      const query = req.query as GetApplicationsQuery;
+      const query = req.query as unknown as GetApplicationsQuery;
       const supabase = getSupabaseAdmin();
 
       // Build query with filters
-      let dbQuery = supabase
-        .from('applications')
+      let dbQuery = (supabase
+        .from('applications') as any)
         .select('*', { count: 'exact' })
         .eq('analyst_id', userId);
 
@@ -107,8 +107,8 @@ router.get(
       const { id } = req.params;
       const supabase = getSupabaseAdmin();
 
-      const { data: application, error } = await supabase
-        .from('applications')
+      const { data: application, error } = await (supabase
+        .from('applications') as any)
         .select('*')
         .eq('id', id)
         .eq('analyst_id', userId)
@@ -169,8 +169,8 @@ router.post(
       const applicationData = req.body as CreateApplicationInput;
       const supabase = getSupabaseAdmin();
 
-      const { data: application, error } = await supabase
-        .from('applications')
+      const { data: application, error } = await (supabase
+        .from('applications') as any)
         .insert({
           ...applicationData,
           analyst_id: userId,
@@ -236,8 +236,8 @@ router.patch(
         return;
       }
 
-      const { data: application, error } = await supabase
-        .from('applications')
+      const { data: application, error } = await (supabase
+        .from('applications') as any)
         .update(updates)
         .eq('id', id)
         .eq('analyst_id', userId)
@@ -299,8 +299,8 @@ router.delete(
       const { id } = req.params;
       const supabase = getSupabaseAdmin();
 
-      const { error } = await supabase
-        .from('applications')
+      const { error } = await (supabase
+        .from('applications') as any)
         .delete()
         .eq('id', id)
         .eq('analyst_id', userId);

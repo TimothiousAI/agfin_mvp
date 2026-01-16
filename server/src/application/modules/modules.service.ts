@@ -125,8 +125,7 @@ export async function updateFieldValue(
   const supabase = getSupabaseAdmin();
 
   // Verify application access
-  const { data: application, error: appError } = await supabase
-    .from('applications')
+  const { data: application, error: appError } = await (supabase.from('applications') as any)
     .select('id, status')
     .eq('id', applicationId)
     .eq('analyst_id', analystId)
@@ -137,13 +136,12 @@ export async function updateFieldValue(
   }
 
   // Prevent updates to locked applications
-  if (application.status === 'locked') {
+  if ((application as any).status === 'locked') {
     throw new Error('Cannot update locked application');
   }
 
   // Check if field already exists
-  const { data: existingField } = await supabase
-    .from('module_data')
+  const { data: existingField } = await (supabase.from('module_data') as any)
     .select('*')
     .eq('application_id', applicationId)
     .eq('module_number', moduleNumber)
@@ -164,8 +162,7 @@ export async function updateFieldValue(
 
   if (existingField) {
     // Update existing field
-    const { data: updated, error: updateError } = await supabase
-      .from('module_data')
+    const { data: updated, error: updateError } = await (supabase.from('module_data') as any)
       .update({
         value: fieldData.value,
         source: fieldData.source,
@@ -173,7 +170,7 @@ export async function updateFieldValue(
         confidence_score: fieldData.confidence_score,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', existingField.id)
+      .eq('id', (existingField as any).id)
       .select()
       .single();
 
@@ -191,16 +188,15 @@ export async function updateFieldValue(
       {
         module_number: moduleNumber,
         field_id: fieldId,
-        old_value: existingField.value,
+        old_value: (existingField as any).value,
         new_value: fieldData.value,
-        old_source: existingField.source,
+        old_source: (existingField as any).source,
         new_source: fieldData.source,
       }
     );
   } else {
     // Create new field
-    const { data: created, error: createError } = await supabase
-      .from('module_data')
+    const { data: created, error: createError } = await (supabase.from('module_data') as any)
       .insert(fieldData)
       .select()
       .single();
@@ -251,7 +247,7 @@ export async function bulkUpdateFields(
     throw new Error('Application not found or access denied');
   }
 
-  if (application.status === 'locked') {
+  if ((application as any).status === 'locked') {
     throw new Error('Cannot update locked application');
   }
 
@@ -308,7 +304,7 @@ export async function deleteFieldValue(
     throw new Error('Application not found or access denied');
   }
 
-  if (application.status === 'locked') {
+  if ((application as any).status === 'locked') {
     throw new Error('Cannot delete from locked application');
   }
 
@@ -547,7 +543,7 @@ async function logAuditTrail(
   const supabase = getSupabaseAdmin();
 
   try {
-    await supabase.from('audit_trail').insert({
+    await (supabase.from('audit_trail') as any).insert({
       application_id: applicationId,
       analyst_id: analystId,
       action,

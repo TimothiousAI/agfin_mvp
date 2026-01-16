@@ -1,4 +1,5 @@
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
+import type { ReactNode } from 'react';
 import * as ContextMenu from '@radix-ui/react-context-menu';
 import {
   Pin,
@@ -31,7 +32,7 @@ export interface SessionContextMenuProps {
 export function SessionContextMenu({
   children,
   sessionId,
-  sessionTitle,
+  sessionTitle: _sessionTitle,
   isPinned = false,
   isArchived = false,
   onPin,

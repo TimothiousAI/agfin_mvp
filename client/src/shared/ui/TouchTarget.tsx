@@ -1,4 +1,5 @@
-import { ReactNode, forwardRef, ButtonHTMLAttributes } from 'react';
+import type { ReactNode, ButtonHTMLAttributes } from 'react';
+import { forwardRef } from 'react';
 import { cn } from '../utils/cn';
 
 interface TouchTargetProps extends ButtonHTMLAttributes<HTMLButtonElement> {

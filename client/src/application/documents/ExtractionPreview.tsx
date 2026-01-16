@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 
 /**
  * Extracted field with metadata
@@ -64,8 +64,8 @@ export interface ExtractionPreviewProps {
  * target module mapping, and accept/reject controls.
  */
 export default function ExtractionPreview({
-  documentId,
-  documentType,
+  documentId: _documentId,
+  documentType: _documentType,
   fields,
   overallConfidence,
   onAcceptField,

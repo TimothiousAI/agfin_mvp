@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { z } from 'zod';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -116,7 +116,7 @@ export default function M4OperationsForm({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
+  const [_touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
 
   // Common expense categories
   const expenseCategories = [
@@ -137,7 +137,7 @@ export default function M4OperationsForm({
   ];
 
   // Calculate totals whenever values change
-  const totals = React.useMemo(() => {
+  const totals = useMemo(() => {
     const crops = formData.crops || [];
     const expenses = formData.expenses || [];
 
@@ -263,7 +263,7 @@ export default function M4OperationsForm({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        error.errors.forEach(err => {
+        error.issues.forEach((err: z.ZodIssue) => {
           if (err.path.length > 0) {
             newErrors[err.path.join('.')] = err.message;
           }

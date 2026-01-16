@@ -139,6 +139,7 @@ export async function createApplication(
 ) {
   const { data, error } = await supabase
     .from('applications')
+    // @ts-ignore - Supabase type inference limitation
     .insert(application)
     .select()
     .single();
@@ -154,6 +155,7 @@ export async function updateApplication(
 ) {
   const { data, error } = await supabase
     .from('applications')
+    // @ts-ignore - Supabase type inference limitation
     .update(updates)
     .eq('id', applicationId)
     .select()
@@ -203,6 +205,7 @@ export async function upsertModuleData(
 ) {
   const { data, error } = await supabase
     .from('module_data')
+    // @ts-ignore - Supabase type inference limitation
     .upsert(moduleData, {
       onConflict: 'application_id,module_number,field_id',
     })
@@ -256,6 +259,7 @@ export async function createSession(
 
   const { data, error } = await supabase
     .from('agfin_ai_bot_sessions')
+    // @ts-ignore - Supabase type inference limitation
     .insert({
       user_id: user.id,
       title,
@@ -289,6 +293,7 @@ export async function addMessage(
 ) {
   const { data, error } = await supabase
     .from('agfin_ai_bot_messages')
+    // @ts-ignore - Supabase type inference limitation
     .insert({
       session_id: sessionId,
       role,
@@ -302,6 +307,7 @@ export async function addMessage(
   // Update session timestamp
   await supabase
     .from('agfin_ai_bot_sessions')
+    // @ts-ignore - Supabase type inference limitation
     .update({ updated_at: new Date().toISOString() })
     .eq('id', sessionId);
 

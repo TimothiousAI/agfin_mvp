@@ -1,4 +1,5 @@
-import { ReactNode, createContext, useContext, useState } from 'react';
+import type { ReactNode } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 /**
  * Mock Clerk Provider for Development/Testing
@@ -50,11 +51,13 @@ export function MockClerkProvider({ children }: { children: ReactNode }) {
     return sessionStorage.getItem('mock_clerk_signed_in') === 'true';
   });
 
+  // Dev user - can be overridden via env var
+  const devEmail = import.meta.env.VITE_DEV_USER_EMAIL || 'timcarter76@gmail.com';
   const [user] = useState({
-    id: 'mock-user-id',
-    primaryEmailAddress: { emailAddress: 'demo@agrellus.com' },
-    firstName: 'Demo',
-    lastName: 'User',
+    id: 'dev-user-id',
+    primaryEmailAddress: { emailAddress: devEmail },
+    firstName: 'Tim',
+    lastName: 'Carter',
   });
 
   // Helper to update sign-in state

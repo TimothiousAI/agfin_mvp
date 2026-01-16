@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Download, FileDown, FileJson, FileText, Loader2 } from 'lucide-react';
 import type { Artifact } from './ArtifactContent';
 
@@ -125,7 +125,7 @@ async function exportAsJSON(artifact: Artifact, filename: string, options: Expor
 /**
  * Export as CSV
  */
-async function exportAsCSV(artifact: Artifact, filename: string, options: ExportOptions) {
+async function exportAsCSV(artifact: Artifact, filename: string, _options: ExportOptions) {
   let csv = '';
 
   // For extraction artifacts, export fields
@@ -149,7 +149,7 @@ async function exportAsCSV(artifact: Artifact, filename: string, options: Export
   }
   // For module artifacts, export form data
   else if (artifact.type.startsWith('module_')) {
-    const data = artifact.data.initialData || {};
+    const data = ('initialData' in artifact.data && (artifact.data as any).initialData) || {};
 
     // Headers
     csv += 'Field,Value\n';
@@ -189,7 +189,7 @@ function escapeCsvValue(value: any): string {
 /**
  * Export as PDF (placeholder - requires proper PDF library)
  */
-async function exportAsPDF(artifact: Artifact, filename: string, options: ExportOptions) {
+async function exportAsPDF(artifact: Artifact, filename: string, _options: ExportOptions) {
   // For documents, try to download the original document
   if (artifact.type === 'document' && artifact.data.documentUrl) {
     try {
@@ -233,7 +233,7 @@ Exported: ${new Date().toLocaleString()}
 /**
  * Export as plain text
  */
-async function exportAsText(artifact: Artifact, filename: string, options: ExportOptions) {
+async function exportAsText(artifact: Artifact, filename: string, _options: ExportOptions) {
   const content = `
 ${artifact.title}
 ${'='.repeat(artifact.title.length)}

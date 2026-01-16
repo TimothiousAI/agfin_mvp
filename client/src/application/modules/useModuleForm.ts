@@ -99,24 +99,6 @@ async function updateModuleField(
   return data.field;
 }
 
-/**
- * Debounce utility for auto-save
- */
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
 
 /**
  * Module Form Hook Options
@@ -217,7 +199,7 @@ export function useModuleForm(
   const {
     data: moduleData,
     isLoading,
-    error: fetchError,
+    error: _fetchError,
   } = useQuery({
     queryKey: ['modules', applicationId, moduleNumber],
     queryFn: () => fetchModuleData(applicationId, moduleNumber),
@@ -286,7 +268,7 @@ export function useModuleForm(
 
   // Track fields pending auto-save
   const pendingSaves = useRef<Map<string, any>>(new Map());
-  const saveTimeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const saveTimeouts = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   /**
    * Set field value

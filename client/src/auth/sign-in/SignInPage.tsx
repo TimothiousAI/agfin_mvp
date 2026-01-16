@@ -1,4 +1,5 @@
-import { useState, FormEvent } from 'react';
+import type { FormEvent } from 'react';
+import { useState } from 'react';
 import { useSignIn } from '../index';
 import { useNavigate } from 'react-router-dom';
 
@@ -48,7 +49,7 @@ export function SignInPage() {
       await signInAttempt.prepareFirstFactor({
         strategy: 'email_code',
         emailAddressId: signInAttempt.supportedFirstFactors.find(
-          (factor) => factor.strategy === 'email_code'
+          (factor: any) => factor.strategy === 'email_code'
         )?.emailAddressId,
       });
 
@@ -158,6 +159,7 @@ export function SignInPage() {
               <button
                 type="submit"
                 disabled={isLoading || !email}
+                aria-label={isLoading ? "Sending verification code" : "Continue with email to sign in"}
                 className="w-full px-4 py-3 bg-[#30714C] hover:bg-[#28593d] text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#30714C] focus:ring-offset-2 focus:ring-offset-[#061623] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {isLoading ? (
@@ -207,6 +209,7 @@ export function SignInPage() {
               <button
                 type="submit"
                 disabled={isLoading || otp.length !== 6}
+                aria-label={isLoading ? "Verifying code" : "Verify code and sign in"}
                 className="w-full px-4 py-3 bg-[#30714C] hover:bg-[#28593d] text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#30714C] focus:ring-offset-2 focus:ring-offset-[#061623] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {isLoading ? (
@@ -226,6 +229,7 @@ export function SignInPage() {
                 type="button"
                 onClick={handleBackToEmail}
                 disabled={isLoading}
+                aria-label="Go back to email input"
                 className="w-full px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 ← Back to email

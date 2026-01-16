@@ -152,7 +152,7 @@ export async function generateCertificationPDF(
 
   // 5. Upload to Supabase Storage
   const fileName = `certifications/${applicationId}_${Date.now()}.pdf`;
-  const { data: uploadData, error: uploadError } = await supabase.storage
+  const { data: _uploadData, error: uploadError } = await supabase.storage
     .from('application-documents')
     .upload(fileName, pdfBuffer, {
       contentType: 'application/pdf',

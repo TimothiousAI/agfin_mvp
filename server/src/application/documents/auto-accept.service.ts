@@ -1,5 +1,5 @@
 import { logger } from '../../core/logging';
-import { getDatabase } from '../../core/database';
+import { getSupabaseAdmin } from '../../core/database';
 import { FieldConfidence, DocumentConfidence } from './confidence.service';
 
 /**
@@ -248,7 +248,7 @@ export class AutoAcceptService {
     documentId: string,
     fields: Array<{ field_name: string; value: any; confidence: number }>
   ): Promise<void> {
-    const db = getDatabase();
+    const db = getSupabaseAdmin();
 
     logger.info('Applying auto-accepted fields to module_data', {
       application_id: applicationId,
@@ -259,8 +259,7 @@ export class AutoAcceptService {
     for (const field of fields) {
       try {
         // Insert or update module_data record
-        await db
-          .from('module_data')
+        await (db.from('module_data') as any)
           .upsert({
             application_id: applicationId,
             field_name: field.field_name,
@@ -299,7 +298,7 @@ export class AutoAcceptService {
     applicationId: string,
     decisions: AutoAcceptDecision[]
   ): Promise<void> {
-    const db = getDatabase();
+    const db = getSupabaseAdmin();
 
     logger.info('Logging auto-accept decisions to audit trail', {
       document_id: documentId,
@@ -309,8 +308,7 @@ export class AutoAcceptService {
 
     try {
       // Log single audit entry with all decisions
-      await db
-        .from('audit_trail')
+      await (db.from('audit_trail') as any)
         .insert({
           application_id: applicationId,
           action_type: 'auto_accept_decision',

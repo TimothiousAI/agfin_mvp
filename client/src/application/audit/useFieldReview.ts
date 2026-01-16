@@ -92,7 +92,7 @@ export interface UseFieldReviewReturn {
  */
 export function useFieldReview({
   flaggedFieldIds,
-  confidenceThreshold = 0.90,
+  confidenceThreshold: _confidenceThreshold = 0.90,
 }: UseFieldReviewOptions): UseFieldReviewReturn {
   // Map of field ID to review status
   const [reviewStatuses, setReviewStatuses] = useState<Map<string, FieldReviewStatus>>(

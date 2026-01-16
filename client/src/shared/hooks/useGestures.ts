@@ -1,4 +1,5 @@
-import { useEffect, useRef, RefObject } from 'react';
+import { useEffect, useRef } from 'react';
+import type { RefObject } from 'react';
 
 /**
  * Gesture handler callbacks
@@ -104,7 +105,7 @@ export function useGestures(
     currentScale: 1,
   });
 
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const element = elementRef.current;

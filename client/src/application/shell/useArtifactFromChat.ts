@@ -164,7 +164,7 @@ export function useArtifactFromChat(options: ArtifactFromChatOptions = {}) {
     useArtifactFactory();
 
   // Track pending scroll operations
-  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   /**
    * Scroll artifact into view

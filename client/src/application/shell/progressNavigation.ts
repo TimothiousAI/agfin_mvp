@@ -46,7 +46,7 @@ export function navigateToDocument(
 ): NavigationResult {
   const {
     updateUrl = true,
-    smoothScroll = true,
+    smoothScroll: _smoothScroll = true,
     focusTarget = true,
     onNavigate,
   } = options;
@@ -92,7 +92,7 @@ export function navigateToModule(
 ): NavigationResult {
   const {
     updateUrl = true,
-    smoothScroll = true,
+    smoothScroll: _smoothScroll = true,
     focusTarget = true,
     onNavigate,
   } = options;

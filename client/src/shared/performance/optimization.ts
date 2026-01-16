@@ -8,7 +8,8 @@
  * - Prefetch likely next views
  */
 
-import { lazy, ComponentType, LazyExoticComponent } from 'react';
+import { lazy } from 'react';
+import type { ComponentType, LazyExoticComponent } from 'react';
 
 /**
  * Performance measurement utilities using Performance API
@@ -122,7 +123,7 @@ export function lazyWithRetry<T extends ComponentType<any>>(
         // Force refresh the page
         window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
         window.location.reload();
-        return { default: (() => null) as T };
+        return { default: (() => null) as unknown as T };
       }
 
       // If already refreshed, throw the error
@@ -195,14 +196,14 @@ export function profileComponent(
   onRenderCallback?: (duration: number) => void
 ) {
   return (
-    id: string,
+    _id: string,
     phase: 'mount' | 'update',
     actualDuration: number,
     baseDuration: number,
-    startTime: number,
-    commitTime: number
+    _startTime: number,
+    _commitTime: number
   ) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       const threshold = 16; // 60fps = 16.67ms per frame
 
       if (actualDuration > threshold) {
@@ -223,7 +224,7 @@ export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
 
   return function executedFunction(...args: Parameters<T>) {
     const later = () => {

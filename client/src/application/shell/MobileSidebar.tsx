@@ -1,6 +1,8 @@
-import { ReactNode, useEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import { motion, AnimatePresence, PanInfo, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import type { PanInfo } from 'framer-motion';
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -124,14 +126,14 @@ export function MobileSidebar({
   }, [isOpen, onClose, closeOnNavigation]);
 
   // Handle swipe to close gesture
-  const handleDrag = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDrag = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     // Dragging left (negative offset)
     if (info.offset.x < -50) {
       onClose();
     }
   };
 
-  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     // Close if dragged significantly left or with high velocity
     if (info.offset.x < -100 || info.velocity.x < -500) {
       onClose();

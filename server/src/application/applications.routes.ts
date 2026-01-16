@@ -76,7 +76,7 @@ router.get(
         return;
       }
 
-      const filters = req.query as z.infer<typeof ApplicationListQuerySchema>;
+      const filters = req.query as unknown as z.infer<typeof ApplicationListQuerySchema>;
       const { applications, count } = await ApplicationService.getApplications(userId, filters);
 
       res.json({

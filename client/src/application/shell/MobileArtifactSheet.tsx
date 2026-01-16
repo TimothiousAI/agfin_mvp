@@ -1,6 +1,8 @@
-import { ReactNode, useEffect, useState, useRef } from 'react';
+import type { ReactNode } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ChevronDown, X } from 'lucide-react';
-import { motion, AnimatePresence, PanInfo, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import type { PanInfo } from 'framer-motion';
 
 interface MobileArtifactSheetProps {
   isOpen: boolean;
@@ -56,7 +58,7 @@ export function MobileArtifactSheet({
   initialSnap = 'half',
 }: MobileArtifactSheetProps) {
   const [currentSnap, setCurrentSnap] = useState<'half' | 'full'>(initialSnap);
-  const controls = useAnimation();
+  useAnimation(); // Required for drag gesture to work, but value not directly used
   const sheetRef = useRef<HTMLDivElement>(null);
 
   // Prevent body scroll when sheet is open
@@ -84,7 +86,7 @@ export function MobileArtifactSheet({
   }, [isOpen]);
 
   // Handle drag gesture
-  const handleDrag = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDrag = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     // Dragging down (positive offset)
     const dragThreshold = 100;
     if (info.offset.y > dragThreshold) {
@@ -93,7 +95,7 @@ export function MobileArtifactSheet({
     }
   };
 
-  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const windowHeight = window.innerHeight;
     const currentHeight = sheetRef.current?.getBoundingClientRect().height || 0;
     const dragDistance = info.offset.y;

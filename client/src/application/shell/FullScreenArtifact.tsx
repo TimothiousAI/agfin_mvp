@@ -1,7 +1,9 @@
 import React, { useEffect, useCallback } from 'react';
 import { X, Minimize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ArtifactContent, { Artifact } from './ArtifactContent';
+import type { Variants } from 'framer-motion';
+import ArtifactContent from './ArtifactContent';
+import type { Artifact } from './ArtifactContent';
 
 export interface FullScreenArtifactProps {
   /** The artifact to display in full-screen */
@@ -19,7 +21,7 @@ export interface FullScreenArtifactProps {
 /**
  * Full-screen animation variants
  */
-const fullScreenVariants = {
+const fullScreenVariants: Variants = {
   hidden: {
     opacity: 0,
     scale: 0.95,
@@ -49,7 +51,7 @@ const fullScreenVariants = {
 /**
  * Header animation variants
  */
-const headerVariants = {
+const headerVariants: Variants = {
   hidden: {
     y: -20,
     opacity: 0,
@@ -70,7 +72,7 @@ const headerVariants = {
 /**
  * Content animation variants
  */
-const contentVariants = {
+const contentVariants: Variants = {
   hidden: {
     opacity: 0,
     y: 10,

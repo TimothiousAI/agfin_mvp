@@ -1,4 +1,4 @@
-import { clerkMiddleware, requireAuth as clerkRequireAuth, getAuth } from '@clerk/express';
+import { clerkMiddleware, requireAuth as clerkRequireAuth, getAuth as clerkGetAuthImport } from '@clerk/express';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { config } from '../core/config';
 
@@ -137,8 +137,6 @@ export function getUserId(req: Request): string {
  * In dev mode without Clerk keys, returns the mock auth object directly
  * Otherwise uses Clerk's getAuth function from @clerk/express
  */
-const clerkGetAuth = getAuth; // Save original Clerk function
-
 export function getAuth(req: Request) {
   const hasValidKeys = config.CLERK_SECRET_KEY &&
                        config.CLERK_PUBLISHABLE_KEY &&
@@ -158,5 +156,5 @@ export function getAuth(req: Request) {
   }
 
   // With Clerk configured, use the real getAuth function
-  return clerkGetAuth(req);
+  return clerkGetAuthImport(req);
 }

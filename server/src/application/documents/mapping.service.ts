@@ -2,7 +2,6 @@ import { logger } from '../../core/logging';
 import { SupabaseClient } from '@supabase/supabase-js';
 import {
   getDocumentMapping,
-  getModuleFieldMappings,
   FieldMapping,
   ModuleId,
   DocumentTypeName,
@@ -491,7 +490,7 @@ export class MappingService {
   private async shouldReplaceExisting(
     existingData: any,
     newConfidence: number | undefined,
-    newDocumentId: string
+    _newDocumentId: string
   ): Promise<boolean> {
     // If existing value is manually entered or auditor verified, don't replace
     if (existingData.source === 'proxy_entered' ||

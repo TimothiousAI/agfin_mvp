@@ -43,6 +43,8 @@ export default function SkipLinks({ links = defaultLinks }: SkipLinksProps) {
           href={`#${link.id}`}
           className="skip-link"
           onClick={(e) => handleClick(e, link.id)}
+          role="link"
+          aria-label={link.label}
         >
           {link.label}
         </a>

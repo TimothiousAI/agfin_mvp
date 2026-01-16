@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import M3FinancialForm from '../application/modules/M3FinancialForm';
 
 interface FieldMetadata {

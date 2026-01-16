@@ -23,7 +23,7 @@ export function AutoSaveTest() {
   const [saveLog, setSaveLog] = useState<string[]>([]);
 
   // Simulate API save with version tracking
-  const handleSave = async (data: FormData) => {
+  const handleSave = async (_data: FormData) => {
     // Add to log
     const timestamp = new Date().toLocaleTimeString();
     setSaveLog((prev) => [...prev, `${timestamp}: Saving data...`]);

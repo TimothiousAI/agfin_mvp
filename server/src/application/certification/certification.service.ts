@@ -57,8 +57,8 @@ export async function validateCertificationReadiness(
   const blockers: CertificationBlocker[] = [];
 
   // 1. Check all documents have been audited
-  const { data: documents, error: docsError } = await supabase
-    .from('documents')
+  const { data: documents, error: docsError } = await (supabase
+    .from('documents') as any)
     .select('id, document_type, audit_status')
     .eq('application_id', applicationId);
 
@@ -72,16 +72,16 @@ export async function validateCertificationReadiness(
 
   const totalDocuments = documents?.length || 0;
   const auditedDocuments = documents?.filter(
-    (doc) => doc.audit_status === 'audited'
+    (doc: any) => doc.audit_status === 'audited'
   ) || [];
   const documentsAudited = auditedDocuments.length;
 
   // Track unaudited documents as blockers
   const unauditedDocs = documents?.filter(
-    (doc) => doc.audit_status !== 'audited'
+    (doc: any) => doc.audit_status !== 'audited'
   ) || [];
 
-  unauditedDocs.forEach((doc) => {
+  unauditedDocs.forEach((doc: any) => {
     blockers.push({
       type: 'document',
       id: doc.id,
@@ -91,8 +91,8 @@ export async function validateCertificationReadiness(
   });
 
   // 2. Check all required module fields are populated
-  const { data: moduleData, error: modulesError } = await supabase
-    .from('module_data')
+  const { data: moduleData, error: modulesError } = await (supabase
+    .from('module_data') as any)
     .select('id, module_name, field_path, value, required')
     .eq('application_id', applicationId);
 
@@ -105,11 +105,11 @@ export async function validateCertificationReadiness(
   }
 
   // Filter required fields
-  const requiredFields = moduleData?.filter((field) => field.required === true) || [];
+  const requiredFields = moduleData?.filter((field: any) => field.required === true) || [];
   const totalRequiredFields = requiredFields.length;
 
   // Check which required fields are populated (not null, not empty string)
-  const populatedRequiredFields = requiredFields.filter((field) => {
+  const populatedRequiredFields = requiredFields.filter((field: any) => {
     const value = field.value;
     if (value === null || value === undefined) return false;
     if (typeof value === 'string' && value.trim() === '') return false;
@@ -118,14 +118,14 @@ export async function validateCertificationReadiness(
   const requiredFieldsPopulated = populatedRequiredFields.length;
 
   // Track unpopulated required fields as blockers
-  const unpopulatedFields = requiredFields.filter((field) => {
+  const unpopulatedFields = requiredFields.filter((field: any) => {
     const value = field.value;
     if (value === null || value === undefined) return true;
     if (typeof value === 'string' && value.trim() === '') return true;
     return false;
   });
 
-  unpopulatedFields.forEach((field) => {
+  unpopulatedFields.forEach((field: any) => {
     blockers.push({
       type: 'field',
       id: field.id,
@@ -151,8 +151,8 @@ export async function validateCertificationReadiness(
   const reviewedFieldIds = new Set<string>();
 
   for (const field of lowConfidenceFields) {
-    const { data: auditEntries, error: auditError } = await supabase
-      .from('audit_trail')
+    const { data: auditEntries, error: auditError } = await (supabase
+      .from('audit_trail') as any)
       .select('id')
       .eq('application_id', applicationId)
       .eq('field_id', field.id)
@@ -243,8 +243,8 @@ export async function certifyApplication(
   // 2. Update application status to certified
   const supabase = getSupabaseAdmin();
 
-  const { data: application, error } = await supabase
-    .from('applications')
+  const { data: application, error } = await (supabase
+    .from('applications') as any)
     .update({
       status: 'certified',
       certified_at: new Date().toISOString(),

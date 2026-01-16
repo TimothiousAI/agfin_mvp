@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { z } from 'zod';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -133,7 +133,7 @@ export default function M3FinancialForm({
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
 
   // Calculate totals whenever values change
-  const totals = React.useMemo(() => {
+  const totals = useMemo(() => {
     const currentAssets = (formData.cash_and_checking || 0) +
       (formData.savings || 0) +
       (formData.accounts_receivable || 0) +
@@ -226,7 +226,7 @@ export default function M3FinancialForm({
       if (error instanceof z.ZodError) {
         setErrors(prev => ({
           ...prev,
-          [fieldName]: error.errors[0].message,
+          [fieldName]: error.issues[0].message,
         }));
       }
     }
@@ -247,7 +247,7 @@ export default function M3FinancialForm({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        error.errors.forEach(err => {
+        error.issues.forEach((err: z.ZodIssue) => {
           if (err.path.length > 0) {
             newErrors[err.path[0].toString()] = err.message;
           }

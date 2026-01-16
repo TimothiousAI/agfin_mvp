@@ -219,7 +219,7 @@ export function useFormPersistence<T>({
 }: FormPersistenceOptions<T>) {
   const [isRestored, setIsRestored] = useState(false);
   const [hasSavedData, setHasSavedData] = useState(false);
-  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedDataRef = useRef<string>('');
 
   /**
