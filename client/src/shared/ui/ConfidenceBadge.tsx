@@ -85,8 +85,8 @@ function getDefaultTooltip(level: ConfidenceLevel, score: number): string {
  *
  * Features:
  * - Color-coded by confidence level:
- *   - High (≥90%): green (#F0FDF4 bg, #30714C border/text)
- *   - Medium (70-89%): yellow (#FFF3CD bg, #D6A800 border, #856404 text)
+ *   - High (>=90%): green (#F0FDF4 bg, #30714C border/text)
+ *   - Medium (70-89%): Wheat Gold (#F5F1E1 bg, #C29F3F border, #735E25 text)
  *   - Low (<70%): red (#FFEDED bg, #C1201C border/text)
  * - Shows percentage value
  * - Optional tooltip with explanation

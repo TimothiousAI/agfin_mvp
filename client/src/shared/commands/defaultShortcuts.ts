@@ -162,6 +162,14 @@ export const SHORTCUT_LABELS = {
  * Shortcut categories for help display
  */
 export const SHORTCUT_CATEGORIES = {
+  CHAT: {
+    name: 'Chat',
+    shortcuts: [
+      { key: SHORTCUT_LABELS.ESCAPE, description: 'Stop AI response generation' },
+      { key: SHORTCUT_LABELS.SEND_MESSAGE, description: 'Send message' },
+      { key: SHORTCUT_LABELS.NEW_LINE, description: 'New line in message' },
+    ]
+  },
   MESSAGING: {
     name: 'Messaging',
     shortcuts: [

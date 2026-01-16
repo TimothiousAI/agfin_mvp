@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import { z } from 'zod';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
 
 /**
  * Validation schemas for M1 fields
@@ -39,9 +39,7 @@ const m1FormSchema = z.object({
   applicant_address_county: z.string().optional(),
 
   // Entity Information
-  entity_type: z.enum(['individual', 'partnership', 'llc', 'corporation', 's_corp', 'trust', 'estate'], {
-    errorMap: () => ({ message: 'Please select an entity type' })
-  }),
+  entity_type: z.enum(['individual', 'partnership', 'llc', 'corporation', 's_corp', 'trust', 'estate']),
   organization_legal_name: z.string().optional(),
   organization_ein: einSchema.optional(),
   organization_structure: z.string().optional(),
@@ -133,13 +131,13 @@ export default function M1IdentityForm({
       if (error instanceof z.ZodError) {
         setErrors(prev => ({
           ...prev,
-          [fieldName]: error.errors[0].message,
+          [fieldName]: error.issues[0].message,
         }));
       }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     try {
@@ -150,7 +148,7 @@ export default function M1IdentityForm({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        error.errors.forEach(err => {
+        error.issues.forEach((err: z.ZodIssue) => {
           if (err.path.length > 0) {
             newErrors[err.path[0].toString()] = err.message;
           }
@@ -189,7 +187,7 @@ export default function M1IdentityForm({
         badgeColor = 'bg-green-100 text-green-800';
         badgeText = `${Math.round(confidence * 100)}% AI`;
       } else if (confidence >= 0.7) {
-        badgeColor = 'bg-yellow-100 text-yellow-800';
+        badgeColor = 'bg-accent-100 text-accent-800';
         badgeText = `${Math.round(confidence * 100)}% AI`;
       } else {
         badgeColor = 'bg-red-100 text-red-800';
@@ -287,6 +285,7 @@ export default function M1IdentityForm({
               <button
                 type="button"
                 onClick={() => setShowSsn(!showSsn)}
+                aria-label={showSsn ? "Hide Social Security Number" : "Show Social Security Number"}
                 className="ml-auto text-xs text-blue-600 hover:text-blue-800"
               >
                 {showSsn ? 'Hide' : 'Show'}
@@ -358,6 +357,7 @@ export default function M1IdentityForm({
               onChange={(e) => handleFieldChange('entity_type', e.target.value)}
               onBlur={() => handleBlur('entity_type')}
               disabled={readOnly}
+              aria-label="Select business entity type"
               className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select entity type...</option>
@@ -397,6 +397,7 @@ export default function M1IdentityForm({
         <div className="flex justify-end">
           <button
             type="submit"
+            aria-label="Save form and continue to next step"
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Save & Continue

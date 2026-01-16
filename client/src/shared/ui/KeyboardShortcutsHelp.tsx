@@ -9,15 +9,8 @@ import * as React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './dialog';
 import { Input } from './input';
 import { Search, ExternalLink, Command } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import {
-  SHORTCUT_LABELS,
-  SHORTCUT_CATEGORIES
-} from '../commands/defaultShortcuts';
-import {
-  NAVIGATION_SHORTCUT_LABELS,
-  NAVIGATION_CATEGORIES
-} from '../commands/navigationShortcuts';
+import { SHORTCUT_CATEGORIES } from '../commands/defaultShortcuts';
+import { NAVIGATION_CATEGORIES } from '../commands/navigationShortcuts';
 
 interface ShortcutItem {
   key: string;
@@ -72,14 +65,15 @@ export function KeyboardShortcutsHelp({
   // Combine all shortcuts
   const allCategories: ShortcutCategory[] = React.useMemo(() => {
     return [
-      SHORTCUT_CATEGORIES.MESSAGING,
-      SHORTCUT_CATEGORIES.NAVIGATION,
-      SHORTCUT_CATEGORIES.INTERFACE,
-      NAVIGATION_CATEGORIES.DOCUMENT_NAVIGATION,
-      NAVIGATION_CATEGORIES.MODULE_JUMPING,
-      NAVIGATION_CATEGORIES.FORM_ACTIONS,
+      { name: SHORTCUT_CATEGORIES.CHAT.name, shortcuts: [...SHORTCUT_CATEGORIES.CHAT.shortcuts] },
+      { name: SHORTCUT_CATEGORIES.MESSAGING.name, shortcuts: [...SHORTCUT_CATEGORIES.MESSAGING.shortcuts] },
+      { name: SHORTCUT_CATEGORIES.NAVIGATION.name, shortcuts: [...SHORTCUT_CATEGORIES.NAVIGATION.shortcuts] },
+      { name: SHORTCUT_CATEGORIES.INTERFACE.name, shortcuts: [...SHORTCUT_CATEGORIES.INTERFACE.shortcuts] },
+      { name: NAVIGATION_CATEGORIES.DOCUMENT_NAVIGATION.name, shortcuts: [...NAVIGATION_CATEGORIES.DOCUMENT_NAVIGATION.shortcuts] },
+      { name: NAVIGATION_CATEGORIES.MODULE_JUMPING.name, shortcuts: [...NAVIGATION_CATEGORIES.MODULE_JUMPING.shortcuts] },
+      { name: NAVIGATION_CATEGORIES.FORM_ACTIONS.name, shortcuts: [...NAVIGATION_CATEGORIES.FORM_ACTIONS.shortcuts] },
       ...customShortcuts
-    ];
+    ] as ShortcutCategory[];
   }, [customShortcuts]);
 
   // Filter shortcuts based on search

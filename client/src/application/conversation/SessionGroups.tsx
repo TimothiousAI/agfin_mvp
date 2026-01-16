@@ -6,7 +6,7 @@ import {
   subDays,
   startOfDay,
 } from 'date-fns';
-import { Session } from './SessionList';
+import type { Session } from './SessionList';
 
 /**
  * Session Groups Component
@@ -66,7 +66,7 @@ function groupSessionsByDate(sessions: Session[]): SessionGroup[] {
 export function SessionGroups({
   sessions,
   activeSessionId,
-  onSessionClick,
+  onSessionClick: _onSessionClick,
   renderSessionItem,
 }: SessionGroupsProps) {
   const groups = groupSessionsByDate(sessions);
@@ -130,14 +130,7 @@ export function SessionGroups({
                 {group.sessions.map((session) => (
                   <div
                     key={session.id}
-                    onClick={() => onSessionClick(session.id)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        onSessionClick(session.id);
-                      }
-                    }}
+                    role="listitem"
                   >
                     {renderSessionItem(
                       session,

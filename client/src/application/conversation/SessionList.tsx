@@ -4,6 +4,8 @@ import { SessionGroups } from './SessionGroups';
 import { NewConversationButton } from './NewConversationButton';
 import { SessionSearch, useSessionFilter, EmptySearchResults } from './SessionSearch';
 import { SessionContextMenu } from './SessionContextMenu';
+import { EditableSessionTitle } from './EditableSessionTitle';
+import { useInlineRename } from './useInlineRename';
 
 /**
  * Session List Component
@@ -46,6 +48,21 @@ export function SessionList({
 }: SessionListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const filteredSessions = useSessionFilter(sessions, searchQuery);
+
+  // Inline rename hook
+  const {
+    startEditing,
+    cancelEditing,
+    saveTitle,
+    isEditing,
+    isSaving,
+  } = useInlineRename();
+
+  // Handler for context menu rename - triggers inline edit mode
+  const handleRenameFromContextMenu = (sessionId: string) => {
+    startEditing(sessionId);
+    onRenameSession?.(sessionId);
+  };
 
   // Empty state
   if (sessions.length === 0) {
@@ -107,7 +124,7 @@ export function SessionList({
                 onPin={onPinSession}
                 onUnpin={onUnpinSession}
                 onArchive={onArchiveSession}
-                onRename={onRenameSession}
+                onRename={handleRenameFromContextMenu}
                 onDelete={onDeleteSession}
                 onCopyLink={onCopySessionLink}
               >
@@ -115,6 +132,11 @@ export function SessionList({
                   session={session}
                   isActive={isActive}
                   onClick={() => onSessionClick(session.id)}
+                  isEditing={isEditing(session.id)}
+                  isSaving={isSaving(session.id)}
+                  onStartEdit={() => startEditing(session.id)}
+                  onSaveTitle={(newTitle) => saveTitle(session.id, newTitle)}
+                  onCancelEdit={cancelEditing}
                 />
               </SessionContextMenu>
             )}
@@ -129,47 +151,66 @@ interface SessionListItemProps {
   session: Session;
   isActive: boolean;
   onClick: () => void;
+  isEditing: boolean;
+  isSaving: boolean;
+  onStartEdit: () => void;
+  onSaveTitle: (newTitle: string) => void;
+  onCancelEdit: () => void;
 }
 
-function SessionListItem({ session, isActive, onClick }: SessionListItemProps) {
-  // Get display title - use title if available, otherwise first message preview
+function SessionListItem({
+  session,
+  isActive,
+  onClick,
+  isEditing,
+  isSaving,
+  onStartEdit,
+  onSaveTitle,
+  onCancelEdit,
+}: SessionListItemProps) {
   const displayTitle = session.title || session.first_message || 'Untitled conversation';
-  const truncatedTitle = displayTitle.length > 50
-    ? `${displayTitle.substring(0, 50)}...`
-    : displayTitle;
 
   // Format relative timestamp
   const relativeTime = formatDistanceToNow(new Date(session.updated_at), {
     addSuffix: true,
   });
 
+  // Handle click - only navigate if not editing
+  const handleClick = () => {
+    if (!isEditing) {
+      onClick();
+    }
+  };
+
   return (
-    <button
-      onClick={onClick}
+    <div
+      onClick={handleClick}
       className={`
         w-full p-3 text-left border-b border-gray-100 transition-colors
         hover:bg-gray-50
         ${isActive ? 'bg-blue-50 border-l-4 border-l-blue-600' : 'border-l-4 border-l-transparent'}
+        ${isEditing ? 'cursor-default' : 'cursor-pointer'}
       `}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          {/* Session Title */}
-          <h3
-            className={`
-              text-sm font-medium truncate
-              ${isActive ? 'text-blue-900' : 'text-gray-900'}
-            `}
-          >
-            {truncatedTitle}
-          </h3>
+          {/* Editable Session Title */}
+          <EditableSessionTitle
+            title={displayTitle}
+            isActive={isActive}
+            isEditing={isEditing}
+            isSaving={isSaving}
+            onStartEdit={onStartEdit}
+            onSave={onSaveTitle}
+            onCancel={onCancelEdit}
+          />
 
           {/* Metadata */}
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs text-gray-500">{relativeTime}</span>
             {session.message_count !== undefined && (
               <>
-                <span className="text-xs text-gray-300">•</span>
+                <span className="text-xs text-gray-300">|</span>
                 <span className="text-xs text-gray-500">
                   {session.message_count} {session.message_count === 1 ? 'message' : 'messages'}
                 </span>
@@ -179,13 +220,13 @@ function SessionListItem({ session, isActive, onClick }: SessionListItemProps) {
         </div>
 
         {/* Active Indicator */}
-        {isActive && (
+        {isActive && !isEditing && (
           <div className="flex-shrink-0">
             <div className="w-2 h-2 bg-blue-600 rounded-full" />
           </div>
         )}
       </div>
-    </button>
+    </div>
   );
 }
 

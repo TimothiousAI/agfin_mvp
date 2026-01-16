@@ -12,6 +12,11 @@
   --color-bg-dark: #061623;
   --color-bg-card: #0D2233;
   --radius: 0.625rem;
+  /* Attention/Warning States - Wheat Gold */
+  --attention-bg: #FAF8F0;
+  --attention-border: #DDC66F;
+  --attention-text: #735E25;
+  --attention-icon: #C29F3F;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);

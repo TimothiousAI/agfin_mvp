@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CheckCircle, Edit3, AlertCircle, FileText } from 'lucide-react';
 
 /**
@@ -128,8 +128,8 @@ export default function ExtractedFieldList({
       };
     } else if (confidence >= 0.7) {
       return {
-        bg: 'bg-yellow-100',
-        text: 'text-yellow-800',
+        bg: 'bg-accent-100',
+        text: 'text-accent-800',
         label: 'Medium',
         icon: <AlertCircle className="w-3 h-3" />,
       };
@@ -359,7 +359,7 @@ export default function ExtractedFieldList({
 
                   {/* Warning for low confidence */}
                   {needsConfirmation && (
-                    <div className="mt-3 flex items-start gap-2 p-2 bg-yellow-900/20 border border-yellow-600/30 rounded text-xs text-yellow-200">
+                    <div className="mt-3 flex items-start gap-2 p-2 bg-accent-900/20 border border-accent-600/30 rounded text-xs text-accent-200">
                       <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                       <div>
                         <strong>Review Required:</strong> This field has low confidence and needs

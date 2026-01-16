@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 
 /**
  * Field with confidence metadata
@@ -131,13 +131,13 @@ export default function LowConfidenceList({
   };
 
   const getConfidenceColor = (confidence: number): string => {
-    if (confidence >= 0.7) return 'text-yellow-600';
+    if (confidence >= 0.7) return 'text-accent-700';
     if (confidence >= 0.5) return 'text-orange-600';
     return 'text-red-600';
   };
 
   const getConfidenceBgColor = (confidence: number): string => {
-    if (confidence >= 0.7) return 'bg-yellow-50 border-yellow-200';
+    if (confidence >= 0.7) return 'bg-accent-50 border-accent-300';
     if (confidence >= 0.5) return 'bg-orange-50 border-orange-200';
     return 'bg-red-50 border-red-200';
   };

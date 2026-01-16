@@ -19,7 +19,7 @@ const badgeVariants = cva(
         "confidence-high":
           "bg-[#F0FDF4] border-[#30714C] text-[#30714C]",
         "confidence-medium":
-          "bg-[#FFF3CD] border-[#D6A800] text-[#856404]",
+          "bg-accent-100 border-accent-600 text-accent-800",
         "confidence-low":
           "bg-[#FFEDED] border-[#C1201C] text-[#C1201C]",
         // Source types
@@ -27,6 +27,8 @@ const badgeVariants = cva(
         manual: "bg-[#F3F4F6] border-[#6B7280] text-[#374151]",
         modified: "bg-[#FEF3C7] border-[#F59E0B] text-[#92400E]",
         verified: "bg-[#DCFCE7] border-[#16A34A] text-[#166534]",
+        // Attention state - Wheat Gold with pulse
+        attention: "bg-accent-50 border-accent-400 text-accent-800 animate-pulse",
       },
       size: {
         default: "text-xs px-2.5 py-0.5",

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -51,12 +51,6 @@ export function WarningBadge({
     sm: 'w-5 h-5 text-[10px]',
     md: 'w-6 h-6 text-xs',
     lg: 'w-8 h-8 text-sm',
-  };
-
-  const iconSizes = {
-    sm: 12,
-    md: 14,
-    lg: 18,
   };
 
   return (
@@ -220,7 +214,7 @@ export function InlineWarningIndicator({
         onClick={onShowDetails}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        className="text-yellow-500 hover:text-yellow-600 transition-colors ml-1"
+        className="text-accent-500 hover:text-accent-600 transition-colors ml-1"
         aria-label={`Low confidence warning for ${fieldName}`}
       >
         <AlertTriangle className="w-4 h-4" />
@@ -237,7 +231,7 @@ export function InlineWarningIndicator({
             className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap pointer-events-none"
           >
             <div className="font-semibold mb-1">{fieldName}</div>
-            <div className="text-yellow-400">
+            <div className="text-accent-400">
               Confidence: {confidencePercentage}%
             </div>
             <div className="text-gray-300 mt-1">Click to review</div>
@@ -262,9 +256,17 @@ export interface WarningSummaryProps {
   breakdown?: {
     documents: number;
     modules: number;
+    /** Count of edited fields for audit */
+    editedFields?: number;
+    /** Count of low confidence fields */
+    lowConfidenceFields?: number;
   };
   /** Click handler to see all warnings */
   onViewAll?: () => void;
+  /** Callback to view edited fields */
+  onViewEdited?: () => void;
+  /** Callback to view low confidence fields */
+  onViewLowConfidence?: () => void;
 }
 
 /**
@@ -276,6 +278,8 @@ export function WarningSummary({
   totalWarnings,
   breakdown,
   onViewAll,
+  onViewEdited,
+  onViewLowConfidence,
 }: WarningSummaryProps) {
   if (totalWarnings === 0) {
     return null;
@@ -300,10 +304,34 @@ export function WarningSummary({
             {totalWarnings} Field{totalWarnings !== 1 ? 's' : ''} Need Attention
           </div>
           {breakdown && (
-            <div className="text-sm text-red-700 mt-1">
-              {breakdown.documents > 0 && `${breakdown.documents} in documents`}
-              {breakdown.documents > 0 && breakdown.modules > 0 && ' • '}
-              {breakdown.modules > 0 && `${breakdown.modules} in modules`}
+            <div className="text-sm text-red-700 mt-1 space-y-0.5">
+              <span>
+                {breakdown.documents > 0 && `${breakdown.documents} in documents`}
+                {breakdown.documents > 0 && breakdown.modules > 0 && ' • '}
+                {breakdown.modules > 0 && `${breakdown.modules} in modules`}
+              </span>
+              {breakdown.editedFields && breakdown.editedFields > 0 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewEdited?.();
+                  }}
+                  className="block text-[#F59E0B] hover:underline"
+                >
+                  {breakdown.editedFields} edited fields for audit
+                </button>
+              )}
+              {breakdown.lowConfidenceFields && breakdown.lowConfidenceFields > 0 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewLowConfidence?.();
+                  }}
+                  className="block text-[#C1201C] hover:underline"
+                >
+                  {breakdown.lowConfidenceFields} low confidence extractions
+                </button>
+              )}
             </div>
           )}
         </div>
