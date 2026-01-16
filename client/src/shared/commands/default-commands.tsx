@@ -4,8 +4,9 @@
  * Predefined commands for common application actions
  */
 
-import { Home, FileText, Upload, Search, CheckCircle2, Plus, Settings, User } from 'lucide-react';
+import { Home, FileText, Upload, Search, CheckCircle2, Plus, Settings, User, GraduationCap } from 'lucide-react';
 import { type CommandDefinition } from './registry';
+import { useOnboardingStore } from '@/application/onboarding';
 
 export function getNavigationCommands(navigate: (path: string) => void): CommandDefinition[] {
   return [
@@ -153,4 +154,22 @@ export function getSearchCommands(handlers: {
   }
 
   return commands;
+}
+
+export function getHelpCommands(): CommandDefinition[] {
+  return [
+    {
+      id: 'help.restart-tour',
+      label: 'Restart Feature Tour',
+      description: 'Take the guided tour of AgFin features again',
+      category: 'help',
+      keywords: ['tour', 'onboarding', 'help', 'guide', 'tutorial'],
+      icon: <GraduationCap className="h-4 w-4" />,
+      action: () => {
+        const { resetTour, startTour } = useOnboardingStore.getState();
+        resetTour();
+        startTour();
+      }
+    }
+  ];
 }

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Maximize2, Minimize2, ZoomIn, ZoomOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PanelResizer } from '../shell/PanelResizer';
@@ -64,10 +64,10 @@ export interface DualPaneReviewProps {
 export default function DualPaneReview({
   pdfUrl,
   extractedFields,
-  highlightedFieldId,
-  onFieldClick,
-  onFieldEdit,
-  onFieldConfirm,
+  highlightedFieldId: _highlightedFieldId,
+  onFieldClick: _onFieldClick,
+  onFieldEdit: _onFieldEdit,
+  onFieldConfirm: _onFieldConfirm,
   rightPaneContent,
   synchronizedScrolling = false,
   initialSplitRatio = 0.5,
@@ -166,21 +166,6 @@ export default function DualPaneReview({
   }, []);
 
   /**
-   * Handle field click - scroll PDF to field location
-   */
-  const handleFieldClick = useCallback(
-    (field: ExtractedField) => {
-      onFieldClick?.(field);
-
-      // Navigate to field's page if location available
-      if (field.location?.pageNumber) {
-        goToPage(field.location.pageNumber);
-      }
-    },
-    [onFieldClick, goToPage]
-  );
-
-  /**
    * Synchronized scrolling handler
    */
   useEffect(() => {
@@ -230,6 +215,7 @@ export default function DualPaneReview({
     <div
       ref={containerRef}
       className={`flex h-full bg-[#061623] ${isFullScreen ? 'fixed inset-0 z-50' : ''}`}
+      data-tour="audit-view"
     >
       {/* Left Pane - PDF Viewer */}
       <div

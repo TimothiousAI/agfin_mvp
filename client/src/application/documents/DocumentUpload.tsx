@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 interface DocumentUploadProps {
@@ -221,7 +221,7 @@ export default function DocumentUpload({
   };
 
   return (
-    <div className="document-upload">
+    <div className="document-upload" data-tour="document-upload">
       {/* Drop zone */}
       <div
         {...getRootProps()}

@@ -7,7 +7,7 @@
 
 import { searchCommands as enhancedSearch, type SearchResult } from './search';
 
-export type CommandCategory = 'navigation' | 'actions' | 'search';
+export type CommandCategory = 'navigation' | 'actions' | 'search' | 'help';
 
 export interface CommandShortcut {
   key: string;

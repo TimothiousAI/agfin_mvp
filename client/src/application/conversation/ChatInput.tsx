@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect, KeyboardEvent } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { KeyboardEvent } from 'react';
+import { StopGenerationButton } from './StopGenerationButton';
 
 /**
  * ChatInput Component
@@ -15,8 +17,12 @@ import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 
 export interface ChatInputProps {
   onSend: (message: string) => void;
+  /** Callback to stop generation */
+  onStop?: () => void;
   placeholder?: string;
   disabled?: boolean;
+  /** Whether the AI is currently streaming a response */
+  isStreaming?: boolean;
   showCharacterCount?: boolean;
   maxLength?: number;
   autoFocus?: boolean;
@@ -24,8 +30,10 @@ export interface ChatInputProps {
 
 export function ChatInput({
   onSend,
+  onStop,
   placeholder = 'Type a message...',
   disabled = false,
+  isStreaming = false,
   showCharacterCount = false,
   maxLength,
   autoFocus = true,
@@ -88,7 +96,7 @@ export function ChatInput({
   const isOverLimit = maxLength !== undefined && message.length > maxLength;
 
   return (
-    <div className="border-t border-gray-200 bg-white p-4">
+    <div className="border-t border-gray-200 bg-white p-4" data-tour="chat-input">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-end gap-3">
           {/* Textarea */}
@@ -130,43 +138,55 @@ export function ChatInput({
             )}
           </div>
 
-          {/* Send button */}
-          <button
-            onClick={handleSubmit}
-            disabled={disabled || isEmpty}
-            className="
-              px-6 py-3 rounded-lg font-medium
-              bg-[#30714C] text-white
-              hover:bg-[#265a3d] active:bg-[#1e4730]
-              disabled:bg-gray-300 disabled:cursor-not-allowed
-              transition-colors
-              flex items-center gap-2
-              flex-shrink-0
-            "
-            aria-label="Send message"
-          >
-            <span>Send</span>
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          {/* Send or Stop button */}
+          {isStreaming && onStop ? (
+            <StopGenerationButton onStop={onStop} />
+          ) : (
+            <button
+              onClick={handleSubmit}
+              disabled={disabled || isEmpty || isStreaming}
+              className="
+                px-6 py-3 rounded-lg font-medium
+                bg-[#30714C] text-white
+                hover:bg-[#265a3d] active:bg-[#1e4730]
+                disabled:bg-gray-300 disabled:cursor-not-allowed
+                transition-colors
+                flex items-center gap-2
+                flex-shrink-0
+              "
+              aria-label="Send message"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              />
-            </svg>
-          </button>
+              <span>Send</span>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                />
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Helper text */}
         <div className="mt-2 text-xs text-gray-500 text-center">
-          Press <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-300">Enter</kbd> to send,{' '}
-          <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-300">Shift</kbd> +{' '}
-          <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-300">Enter</kbd> for new line
+          {isStreaming ? (
+            <>
+              Press <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-300">Escape</kbd> to stop generation
+            </>
+          ) : (
+            <>
+              Press <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-300">Enter</kbd> to send,{' '}
+              <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-300">Shift</kbd> +{' '}
+              <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-300">Enter</kbd> for new line
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -1,7 +1,16 @@
-import { ReactNode, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, PanelLeftClose, PanelRightClose } from 'lucide-react';
+import { useState } from 'react';
+import type { ReactNode } from 'react';
+import { ChevronLeft, ChevronRight, PanelLeftClose, PanelRightClose, HelpCircle, GraduationCap, Keyboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { usePanelStore, setupPanelKeyboardShortcuts } from './usePanelStore';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu';
+import { useOnboardingStore } from '@/application/onboarding';
+import { KeyboardShortcutsHelp } from '@/shared/ui/KeyboardShortcutsHelp';
+import { usePanelStore } from './usePanelStore';
 import { PanelResizer } from './PanelResizer';
 import {
   getSidebarVariants,
@@ -9,14 +18,23 @@ import {
   toggleButtonVariants,
   contentReflowVariants,
 } from './animations';
+import { FormSaveProvider, useOptionalFormSaveContext } from './FormSaveContext';
+import { useGlobalShortcuts } from './useGlobalShortcuts';
 
 interface AppLayoutProps {
   children?: ReactNode;
   sidebar?: ReactNode;
   artifactPanel?: ReactNode;
+  /** Optional application ID for module navigation shortcuts */
+  applicationId?: string;
 }
 
-export function AppLayout({ children, sidebar, artifactPanel }: AppLayoutProps) {
+/**
+ * Inner layout component that uses the FormSaveContext
+ */
+function AppLayoutInner({ children, sidebar, artifactPanel, applicationId }: AppLayoutProps) {
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+
   const sidebarCollapsed = usePanelStore((state) => state.sidebarCollapsed);
   const sidebarWidth = usePanelStore((state) => state.sidebarWidth);
   const setSidebarCollapsed = usePanelStore((state) => state.setSidebarCollapsed);
@@ -29,10 +47,15 @@ export function AppLayout({ children, sidebar, artifactPanel }: AppLayoutProps) 
   const setArtifactPanelWidth = usePanelStore((state) => state.setArtifactPanelWidth);
   const resetArtifactPanelWidth = usePanelStore((state) => state.resetArtifactPanelWidth);
 
-  // Set up keyboard shortcuts
-  useEffect(() => {
-    return setupPanelKeyboardShortcuts();
-  }, []);
+  // Get form save context for global shortcuts
+  const formSaveContext = useOptionalFormSaveContext();
+
+  // Setup global keyboard shortcuts
+  useGlobalShortcuts({
+    applicationId,
+    onSaveActiveForm: formSaveContext?.save || undefined,
+    canSave: formSaveContext?.isDirty && !formSaveContext?.isSaving,
+  });
 
   return (
     <div className="flex h-screen w-full bg-[#061623] overflow-hidden">
@@ -51,13 +74,43 @@ export function AppLayout({ children, sidebar, artifactPanel }: AppLayoutProps) 
           {/* Sidebar Header */}
           <div className="h-14 bg-[#30714C] flex items-center justify-between px-4 flex-shrink-0">
             <h1 className="text-white font-semibold text-lg">AgFin</h1>
-            <button
-              onClick={() => setSidebarCollapsed(true)}
-              className="text-white/80 hover:text-white transition-colors p-1 rounded hover:bg-white/10"
-              aria-label="Collapse sidebar"
-            >
-              <PanelLeftClose size={20} />
-            </button>
+            <div className="flex items-center gap-1">
+              {/* Help Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="text-white/80 hover:text-white transition-colors p-1 rounded hover:bg-white/10"
+                    aria-label="Help menu"
+                  >
+                    <HelpCircle size={20} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      const store = useOnboardingStore.getState();
+                      store.resetTour();
+                      store.startTour();
+                    }}
+                  >
+                    <GraduationCap className="w-4 h-4 mr-2" />
+                    Restart Feature Tour
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowKeyboardHelp(true)}>
+                    <Keyboard className="w-4 h-4 mr-2" />
+                    Keyboard Shortcuts
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <button
+                onClick={() => setSidebarCollapsed(true)}
+                className="text-white/80 hover:text-white transition-colors p-1 rounded hover:bg-white/10"
+                aria-label="Collapse sidebar"
+              >
+                <PanelLeftClose size={20} />
+              </button>
+            </div>
           </div>
 
           {/* Sidebar Content */}
@@ -181,6 +234,26 @@ export function AppLayout({ children, sidebar, artifactPanel }: AppLayoutProps) 
           </motion.button>
         )}
       </AnimatePresence>
+
+      {/* Keyboard Shortcuts Help Modal */}
+      <KeyboardShortcutsHelp
+        open={showKeyboardHelp}
+        onOpenChange={setShowKeyboardHelp}
+      />
     </div>
+  );
+}
+
+/**
+ * AppLayout Component
+ *
+ * Main three-column layout with global keyboard shortcut support.
+ * Wraps the layout in FormSaveProvider to enable Cmd/Ctrl+S save shortcut.
+ */
+export function AppLayout(props: AppLayoutProps) {
+  return (
+    <FormSaveProvider>
+      <AppLayoutInner {...props} />
+    </FormSaveProvider>
   );
 }
