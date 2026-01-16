@@ -3,6 +3,40 @@ import { persist } from 'zustand/middleware';
 import type { Artifact } from './ArtifactContent';
 
 /**
+ * Artifact version snapshot
+ */
+export interface ArtifactVersion {
+  /** Unique version ID */
+  versionId: string;
+  /** Version number (1, 2, 3...) */
+  versionNumber: number;
+  /** ISO timestamp of when this version was created */
+  createdAt: string;
+  /** Description of changes (auto-generated or user-provided) */
+  changeDescription?: string;
+  /** Snapshot of artifact data at this version */
+  dataSnapshot: Record<string, unknown>;
+  /** Source of the change */
+  source: 'ai_extracted' | 'proxy_entered' | 'proxy_edited' | 'ai_reprompt';
+}
+
+/**
+ * Version metadata that can be attached to any artifact
+ */
+export interface VersionMetadata {
+  /** Current version number */
+  currentVersion?: number;
+  /** History of all versions */
+  versionHistory?: ArtifactVersion[];
+}
+
+/**
+ * Extended artifact with version history (intersection type)
+ * Use this type when working with versioned artifacts
+ */
+export type VersionedArtifact = Artifact & VersionMetadata;
+
+/**
  * Artifact Store State Interface
  */
 interface ArtifactStoreState {
@@ -60,6 +94,26 @@ interface ArtifactStoreState {
 
   /** Get total number of open artifacts */
   getArtifactCount: () => number;
+
+  // Version management actions
+  /** Create a new version of an artifact */
+  createVersion: (artifactId: string, changeDescription?: string, source?: ArtifactVersion['source']) => void;
+
+  /** Get version history for an artifact */
+  getVersionHistory: (artifactId: string) => ArtifactVersion[];
+
+  /** Restore artifact to a specific version */
+  restoreVersion: (artifactId: string, versionId: string) => void;
+
+  /** Get a specific version snapshot */
+  getVersion: (artifactId: string, versionId: string) => ArtifactVersion | undefined;
+
+  /** Compare two versions */
+  compareVersions: (artifactId: string, versionIdA: string, versionIdB: string) => {
+    added: string[];
+    removed: string[];
+    changed: Array<{ field: string; oldValue: unknown; newValue: unknown }>;
+  } | null;
 }
 
 /**
@@ -167,7 +221,7 @@ export const useArtifactStore = create<ArtifactStoreState>()(
         set((state) => ({
           artifacts: state.artifacts.map((artifact) =>
             artifact.id === artifactId
-              ? { ...artifact, ...updates }
+              ? ({ ...artifact, ...updates } as Artifact)
               : artifact
           ),
         }));
@@ -266,12 +320,131 @@ export const useArtifactStore = create<ArtifactStoreState>()(
       getArtifactCount: () => {
         return get().artifacts.length;
       },
+
+      // Version management actions
+      createVersion: (artifactId: string, changeDescription?: string, source: ArtifactVersion['source'] = 'proxy_edited') => {
+        set((state) => {
+          const artifact = state.artifacts.find((a) => a.id === artifactId);
+          if (!artifact) return state;
+
+          const versionedArtifact = artifact as unknown as VersionedArtifact;
+          const currentVersion = versionedArtifact.currentVersion || 0;
+          const versionHistory = versionedArtifact.versionHistory || [];
+
+          const newVersion: ArtifactVersion = {
+            versionId: `${artifactId}-v${currentVersion + 1}-${Date.now()}`,
+            versionNumber: currentVersion + 1,
+            createdAt: new Date().toISOString(),
+            changeDescription,
+            dataSnapshot: JSON.parse(JSON.stringify(artifact.data)),
+            source,
+          };
+
+          return {
+            artifacts: state.artifacts.map((a) =>
+              a.id === artifactId
+                ? {
+                    ...a,
+                    currentVersion: currentVersion + 1,
+                    versionHistory: [...versionHistory, newVersion],
+                  }
+                : a
+            ),
+          };
+        });
+      },
+
+      getVersionHistory: (artifactId: string) => {
+        const artifact = get().artifacts.find((a) => a.id === artifactId);
+        if (!artifact) return [];
+        return (artifact as unknown as VersionedArtifact).versionHistory || [];
+      },
+
+      restoreVersion: (artifactId: string, versionId: string) => {
+        set((state) => {
+          const artifact = state.artifacts.find((a) => a.id === artifactId);
+          if (!artifact) return state;
+
+          const versionedArtifact = artifact as unknown as VersionedArtifact;
+          const version = versionedArtifact.versionHistory?.find((v) => v.versionId === versionId);
+          if (!version) return state;
+
+          // Create a new version for the restore operation
+          const newVersion: ArtifactVersion = {
+            versionId: `${artifactId}-v${(versionedArtifact.currentVersion || 0) + 1}-${Date.now()}`,
+            versionNumber: (versionedArtifact.currentVersion || 0) + 1,
+            createdAt: new Date().toISOString(),
+            changeDescription: `Restored from version ${version.versionNumber}`,
+            dataSnapshot: JSON.parse(JSON.stringify(version.dataSnapshot)),
+            source: 'proxy_edited',
+          };
+
+          return {
+            artifacts: state.artifacts.map((a) =>
+              a.id === artifactId
+                ? {
+                    ...a,
+                    data: JSON.parse(JSON.stringify(version.dataSnapshot)),
+                    currentVersion: (versionedArtifact.currentVersion || 0) + 1,
+                    versionHistory: [...(versionedArtifact.versionHistory || []), newVersion],
+                  }
+                : a
+            ),
+          };
+        });
+      },
+
+      getVersion: (artifactId: string, versionId: string) => {
+        const artifact = get().artifacts.find((a) => a.id === artifactId);
+        if (!artifact) return undefined;
+        return (artifact as unknown as VersionedArtifact).versionHistory?.find((v) => v.versionId === versionId);
+      },
+
+      compareVersions: (artifactId: string, versionIdA: string, versionIdB: string) => {
+        const state = get();
+        const artifact = state.artifacts.find((a) => a.id === artifactId);
+        if (!artifact) return null;
+
+        const versionedArtifact = artifact as unknown as VersionedArtifact;
+        const versionA = versionedArtifact.versionHistory?.find((v) => v.versionId === versionIdA);
+        const versionB = versionedArtifact.versionHistory?.find((v) => v.versionId === versionIdB);
+
+        if (!versionA || !versionB) return null;
+
+        const dataA = versionA.dataSnapshot as Record<string, unknown>;
+        const dataB = versionB.dataSnapshot as Record<string, unknown>;
+
+        const allKeys = new Set([...Object.keys(dataA), ...Object.keys(dataB)]);
+        const added: string[] = [];
+        const removed: string[] = [];
+        const changed: Array<{ field: string; oldValue: unknown; newValue: unknown }> = [];
+
+        allKeys.forEach((key) => {
+          const inA = key in dataA;
+          const inB = key in dataB;
+
+          if (!inA && inB) {
+            added.push(key);
+          } else if (inA && !inB) {
+            removed.push(key);
+          } else if (JSON.stringify(dataA[key]) !== JSON.stringify(dataB[key])) {
+            changed.push({ field: key, oldValue: dataA[key], newValue: dataB[key] });
+          }
+        });
+
+        return { added, removed, changed };
+      },
     }),
     {
       name: 'artifact-storage',
-      // Only persist artifacts and active ID, not full-screen state
+      // Persist artifacts with version history and active ID, not full-screen state
       partialize: (state) => ({
-        artifacts: state.artifacts,
+        artifacts: state.artifacts.map((artifact) => ({
+          ...artifact,
+          // Include version history in persistence
+          currentVersion: (artifact as unknown as VersionedArtifact).currentVersion,
+          versionHistory: (artifact as unknown as VersionedArtifact).versionHistory,
+        })),
         activeArtifactId: state.activeArtifactId,
       }),
     }

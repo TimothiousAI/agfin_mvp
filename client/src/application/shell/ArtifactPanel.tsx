@@ -2,11 +2,12 @@ import { X, Maximize2, Minimize2 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArtifactTabBar } from './ArtifactTabBar';
+import ArtifactToolbar from './ArtifactToolbar';
 import {
   artifactSlideVariants,
   contentFadeVariants,
-  fullScreenVariants,
 } from './artifactAnimations';
+import type { Artifact as ContentArtifact } from './ArtifactContent';
 
 interface Artifact {
   id: string;
@@ -140,6 +141,15 @@ export function ArtifactPanel({
                   </span>
                   <h4 className="text-white font-medium">{activeArtifact.title}</h4>
                 </div>
+
+                {/* Artifact Toolbar - Edit, Versions, Export */}
+                <ArtifactToolbar
+                  artifact={activeArtifact as unknown as ContentArtifact}
+                  onRepromptStart={() => {
+                    // Optional: scroll to chat or provide visual feedback
+                    console.log('Re-prompt started for artifact:', activeArtifact.id);
+                  }}
+                />
 
                 {/* Artifact Content */}
                 <div className="bg-[#0D2233] rounded-lg p-4">

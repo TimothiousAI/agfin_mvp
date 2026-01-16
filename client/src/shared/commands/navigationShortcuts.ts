@@ -54,7 +54,7 @@ export function getNavigationShortcuts(handlers: NavigationShortcutHandlers): Sh
       shortcut: {
         key: ']',
         ctrl: true,
-        handler: (event) => {
+        handler: (_event) => {
           // Check availability before executing
           if (handlers.isNavigationAvailable && !handlers.isNavigationAvailable()) {
             return;
@@ -74,7 +74,7 @@ export function getNavigationShortcuts(handlers: NavigationShortcutHandlers): Sh
       shortcut: {
         key: '[',
         ctrl: true,
-        handler: (event) => {
+        handler: (_event) => {
           // Check availability before executing
           if (handlers.isNavigationAvailable && !handlers.isNavigationAvailable()) {
             return;
@@ -95,7 +95,7 @@ export function getNavigationShortcuts(handlers: NavigationShortcutHandlers): Sh
         shortcut: {
           key: i.toString(),
           ctrl: true,
-          handler: (event) => {
+          handler: (_event) => {
             // Check availability before executing
             if (handlers.isNavigationAvailable && !handlers.isNavigationAvailable()) {
               return;
@@ -116,7 +116,7 @@ export function getNavigationShortcuts(handlers: NavigationShortcutHandlers): Sh
       shortcut: {
         key: 's',
         ctrl: true,
-        handler: (event) => {
+        handler: (_event) => {
           // Check if save is available
           if (handlers.isSaveAvailable && !handlers.isSaveAvailable()) {
             return;
@@ -143,7 +143,11 @@ export const NAVIGATION_SHORTCUT_LABELS = {
   MODULE_3: '⌘3 / Ctrl+3',
   MODULE_4: '⌘4 / Ctrl+4',
   MODULE_5: '⌘5 / Ctrl+5',
-  SAVE: '⌘S / Ctrl+S'
+  SAVE: '⌘S / Ctrl+S',
+  // Artifact shortcuts
+  EDIT_ARTIFACT: '⌘E / Ctrl+E',
+  VERSION_HISTORY: '⌘⇧H / Ctrl+Shift+H',
+  EXPORT_ARTIFACT: '⌘⇧S / Ctrl+Shift+S',
 } as const;
 
 /**
@@ -171,6 +175,14 @@ export const NAVIGATION_CATEGORIES = {
     name: 'Form Actions',
     shortcuts: [
       { key: NAVIGATION_SHORTCUT_LABELS.SAVE, description: 'Save current form' }
+    ]
+  },
+  ARTIFACT_ACTIONS: {
+    name: 'Artifact Actions',
+    shortcuts: [
+      { key: NAVIGATION_SHORTCUT_LABELS.EDIT_ARTIFACT, description: 'Edit artifact with AI' },
+      { key: NAVIGATION_SHORTCUT_LABELS.VERSION_HISTORY, description: 'Show version history' },
+      { key: NAVIGATION_SHORTCUT_LABELS.EXPORT_ARTIFACT, description: 'Export artifact' }
     ]
   }
 } as const;
