@@ -7,7 +7,7 @@ export interface Command {
   id: string
   label: string
   description?: string
-  group: 'navigation' | 'actions' | 'recent'
+  group: 'navigation' | 'actions' | 'recent' | 'documents'
   keywords?: string[]
   onSelect: () => void
   icon?: React.ReactNode
@@ -17,14 +17,30 @@ interface CommandPaletteProps {
   commands: Command[]
   recentCommands?: string[] // Command IDs
   placeholder?: string
+  /** Controlled open state */
+  open?: boolean
+  /** Callback when open state changes */
+  onOpenChange?: (open: boolean) => void
 }
 
 export function CommandPalette({
   commands,
   recentCommands = [],
-  placeholder = "Search commands..."
+  placeholder = "Search commands...",
+  open: controlledOpen,
+  onOpenChange,
 }: CommandPaletteProps) {
-  const [open, setOpen] = React.useState(false)
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false)
+
+  // Support both controlled and uncontrolled modes
+  const isControlled = controlledOpen !== undefined
+  const open = isControlled ? controlledOpen : uncontrolledOpen
+  const setOpen = React.useCallback((value: boolean) => {
+    if (!isControlled) {
+      setUncontrolledOpen(value)
+    }
+    onOpenChange?.(value)
+  }, [isControlled, onOpenChange])
   const [search, setSearch] = React.useState("")
   const [selectedIndex, setSelectedIndex] = React.useState(0)
   const inputRef = React.useRef<HTMLInputElement>(null)
@@ -93,18 +109,25 @@ export function CommandPalette({
       (fuzzyMatch(cmd.label, search) || (cmd.keywords?.some(k => fuzzyMatch(k, search))))
     )
 
+    const documents = commands.filter(cmd =>
+      cmd.group === 'documents' &&
+      !recentCommands.includes(cmd.id) &&
+      (fuzzyMatch(cmd.label, search) || (cmd.keywords?.some(k => fuzzyMatch(k, search))))
+    )
+
     const actions = commands.filter(cmd =>
       cmd.group === 'actions' &&
       !recentCommands.includes(cmd.id) &&
       (fuzzyMatch(cmd.label, search) || (cmd.keywords?.some(k => fuzzyMatch(k, search))))
     )
 
-    return { recent, navigation, actions }
+    return { recent, navigation, documents, actions }
   }, [commands, recentCommands, search])
 
   const allResults = [
     ...filteredCommands.recent,
     ...filteredCommands.navigation,
+    ...filteredCommands.documents,
     ...filteredCommands.actions
   ]
 
@@ -255,7 +278,8 @@ export function CommandPalette({
               <>
                 {renderGroup('Recent', filteredCommands.recent, 0)}
                 {renderGroup('Navigation', filteredCommands.navigation, filteredCommands.recent.length)}
-                {renderGroup('Actions', filteredCommands.actions, filteredCommands.recent.length + filteredCommands.navigation.length)}
+                {renderGroup('Documents', filteredCommands.documents, filteredCommands.recent.length + filteredCommands.navigation.length)}
+                {renderGroup('Actions', filteredCommands.actions, filteredCommands.recent.length + filteredCommands.navigation.length + filteredCommands.documents.length)}
               </>
             )}
           </div>

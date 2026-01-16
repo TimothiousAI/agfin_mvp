@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import DocumentProgress, { DocumentSlot, DEFAULT_DOCUMENT_SLOTS } from './DocumentProgress';
-import ModuleProgressSection, { ModuleStatus, DEFAULT_MODULES } from './ModuleProgressSection';
+import DocumentProgress, { DEFAULT_DOCUMENT_SLOTS } from './DocumentProgress';
+import type { DocumentSlot } from './DocumentProgress';
+import ModuleProgressSection, { DEFAULT_MODULES } from './ModuleProgressSection';
+import type { ModuleStatus } from './ModuleProgressSection';
 import { WarningSummary } from './WarningBadges';
-import OverallProgress, { CategoryCompletion, Blocker } from './OverallProgress';
+import OverallProgress from './OverallProgress';
+import type { CategoryCompletion, Blocker } from './OverallProgress';
+import { SourceStatsBadge, EditedCountBadge } from './SourceStatsBadge';
+import { ConfidenceStatsBar } from './ConfidenceStatsBar';
+import type { ApplicationFieldStats } from './useFieldStats';
 
 /**
  * Progress panel section configuration
@@ -47,6 +53,8 @@ export interface ProgressPanelProps {
   loading?: boolean;
   /** Initial expanded sections */
   initialExpandedSections?: string[];
+  /** Application field statistics */
+  fieldStats?: ApplicationFieldStats;
 }
 
 /**
@@ -133,6 +141,7 @@ export default function ProgressPanel({
   activeModuleNumber,
   loading = false,
   initialExpandedSections = ['overall', 'documents', 'modules'],
+  fieldStats,
 }: ProgressPanelProps) {
   // Track which sections are expanded
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -162,7 +171,7 @@ export default function ProgressPanel({
   ).length;
 
   return (
-    <div className="flex flex-col h-full bg-[#061623]">
+    <div className="flex flex-col h-full bg-[#061623]" data-tour="progress-panel">
       {/* Sticky Application Header */}
       <div className="sticky top-0 z-10 bg-[#0D2233] border-b border-white/10 px-6 py-4 shadow-lg">
         <div className="flex items-center justify-between">
@@ -198,6 +207,48 @@ export default function ProgressPanel({
               onSubmit={onSubmit}
               loading={loading}
             />
+
+            {/* Field Source & Confidence Summary */}
+            {fieldStats && fieldStats.totalSource.total > 0 && (
+              <div className="bg-[#061623] rounded-lg p-4 mt-4">
+                <h4 className="text-sm font-semibold text-white mb-3">Data Source Overview</h4>
+
+                {/* Source distribution */}
+                <SourceStatsBadge
+                  stats={fieldStats.totalSource}
+                  size="md"
+                  showTooltip
+                />
+
+                {/* Confidence distribution */}
+                {fieldStats.totalConfidence.total > 0 && (
+                  <div className="mt-4">
+                    <h5 className="text-xs text-white/60 mb-2">Extraction Confidence</h5>
+                    <ConfidenceStatsBar
+                      stats={fieldStats.totalConfidence}
+                      size="md"
+                    />
+                  </div>
+                )}
+
+                {/* Warning counts */}
+                {(fieldStats.totalEdited > 0 || fieldStats.totalLowConfidence > 0) && (
+                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center gap-4">
+                    {fieldStats.totalEdited > 0 && (
+                      <EditedCountBadge
+                        count={fieldStats.totalEdited}
+                        onClick={() => {/* Navigate to edited fields view */}}
+                      />
+                    )}
+                    {fieldStats.totalLowConfidence > 0 && (
+                      <span className="text-xs text-[#C1201C]">
+                        {fieldStats.totalLowConfidence} fields need review
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Document Progress Section */}

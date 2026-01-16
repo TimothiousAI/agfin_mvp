@@ -1,5 +1,7 @@
-import React from 'react';
 import { CheckCircle2, AlertCircle, Clock } from 'lucide-react';
+import { SourceStatsBadge } from './SourceStatsBadge';
+import { ConfidenceStatsBar } from './ConfidenceStatsBar';
+import type { FieldSourceStats, FieldConfidenceStats } from './types/fieldStats';
 
 /**
  * Module completion status
@@ -12,6 +14,11 @@ export interface ModuleStatus {
   requiredFieldsCompleted: number;
   requiredFieldsTotal: number;
   isComplete: boolean;
+  /** Field statistics for the module */
+  fieldStats?: {
+    source: FieldSourceStats;
+    confidence: FieldConfidenceStats;
+  };
 }
 
 /**
@@ -191,6 +198,28 @@ export default function ModuleProgressSection({
                   style={{ width: `${module.completionPercentage}%` }}
                 />
               </div>
+
+              {/* Field Statistics Section */}
+              {module.fieldStats && module.fieldStats.source.total > 0 && (
+                <div className="mt-3 pt-3 border-t border-white/10">
+                  {/* Source distribution bar */}
+                  <SourceStatsBadge
+                    stats={module.fieldStats.source}
+                    size="sm"
+                    compact={false}
+                  />
+
+                  {/* Confidence distribution (only if AI extracted fields exist) */}
+                  {module.fieldStats.confidence.total > 0 && (
+                    <div className="mt-2">
+                      <ConfidenceStatsBar
+                        stats={module.fieldStats.confidence}
+                        size="sm"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </button>
           );
         })}

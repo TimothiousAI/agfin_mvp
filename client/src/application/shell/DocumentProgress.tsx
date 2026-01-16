@@ -1,10 +1,27 @@
-import React from 'react';
-import { FileText, Upload, Loader2, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
+import { FileText, Upload, Loader2, CheckCircle2, AlertCircle, Clock, Edit, AlertTriangle } from 'lucide-react';
 
 /**
  * Document upload status
  */
 export type DocumentStatus = 'empty' | 'uploaded' | 'processing' | 'done' | 'error';
+
+/**
+ * Field statistics for a document
+ */
+export interface DocumentFieldStats {
+  source: {
+    ai_extracted: number;
+    proxy_edited: number;
+    total: number;
+  };
+  confidence: {
+    high: number;
+    medium: number;
+    low: number;
+  };
+  lowConfidenceCount: number;
+  editedCount: number;
+}
 
 /**
  * Document type definition
@@ -17,6 +34,8 @@ export interface DocumentSlot {
   errorMessage?: string;
   uploadedAt?: Date;
   processedAt?: Date;
+  /** Field statistics for processed documents */
+  fieldStats?: DocumentFieldStats;
 }
 
 /**
@@ -220,6 +239,25 @@ export default function DocumentProgress({
                   {doc.status === 'error' && doc.errorMessage && (
                     <div className="mt-1 text-xs text-red-700 font-medium">
                       {doc.errorMessage}
+                    </div>
+                  )}
+                  {/* Field Statistics Badges - Only show for processed documents */}
+                  {doc.status === 'done' && doc.fieldStats && (
+                    <div className="mt-2 flex items-center gap-2">
+                      {/* Edited count badge */}
+                      {doc.fieldStats.editedCount > 0 && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#FEF3C7] border border-[#F59E0B] text-[#92400E] text-xs rounded">
+                          <Edit className="w-3 h-3" />
+                          {doc.fieldStats.editedCount}
+                        </span>
+                      )}
+                      {/* Low confidence badge */}
+                      {doc.fieldStats.lowConfidenceCount > 0 && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#FFEDED] border border-[#C1201C] text-[#C1201C] text-xs rounded">
+                          <AlertTriangle className="w-3 h-3" />
+                          {doc.fieldStats.lowConfidenceCount}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
