@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useChatStore } from './useChatStore';
 import { useMessageStream } from './useMessageStream';
@@ -32,6 +33,18 @@ interface ChatHistoryResponse {
   sessionId: string;
 }
 
+interface EditMessageRequest {
+  messageId: string;
+  content: string;
+  regenerate: boolean;
+}
+
+interface EditMessageResponse {
+  message_id: string;
+  content: string;
+  messages_deleted: number;
+}
+
 /**
  * useSendMessage Hook
  *
@@ -39,7 +52,7 @@ interface ChatHistoryResponse {
  */
 export function useSendMessage() {
   const queryClient = useQueryClient();
-  const { addMessage, setError } = useChatStore();
+  const { addMessage, setError, setLastUserMessage } = useChatStore();
 
   return useMutation({
     mutationFn: async ({ sessionId, content, role = 'user' }: SendMessageRequest) => {
@@ -70,18 +83,22 @@ export function useSendMessage() {
         role,
         content,
         created_at: new Date().toISOString(),
-        metadata: null,
       };
 
       addMessage(optimisticMessage);
 
+      // Track last user message for regeneration
+      if (role === 'user') {
+        setLastUserMessage(content, optimisticMessage.id);
+      }
+
       return { optimisticMessage };
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: (_data, variables) => {
       // Invalidate chat history to refetch
       queryClient.invalidateQueries({ queryKey: ['chatHistory', variables.sessionId] });
     },
-    onError: (error, variables, context) => {
+    onError: (error, _variables, context) => {
       console.error('Failed to send message:', error);
       setError(error instanceof Error ? error.message : 'Failed to send message');
 
@@ -104,7 +121,7 @@ export function useSendMessage() {
 export function useChatHistory(sessionId: string, options?: { enabled?: boolean }) {
   const { setMessages, setError } = useChatStore();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['chatHistory', sessionId],
     queryFn: async () => {
       const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}/messages`);
@@ -118,16 +135,26 @@ export function useChatHistory(sessionId: string, options?: { enabled?: boolean 
     },
     enabled: options?.enabled !== false && !!sessionId,
     staleTime: 1000 * 60 * 5, // 5 minutes
-    onSuccess: (data) => {
-      setMessages(data.messages);
-    },
-    onError: (error) => {
-      console.error('Failed to load chat history:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load chat history');
-    },
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
+
+  // Handle success - update store with messages
+  useEffect(() => {
+    if (query.data) {
+      setMessages(query.data.messages);
+    }
+  }, [query.data, setMessages]);
+
+  // Handle error - update store with error message
+  useEffect(() => {
+    if (query.error) {
+      console.error('Failed to load chat history:', query.error);
+      setError(query.error instanceof Error ? query.error.message : 'Failed to load chat history');
+    }
+  }, [query.error, setError]);
+
+  return query;
 }
 
 /**
@@ -186,6 +213,52 @@ export function useStreamMessage(sessionId: string) {
 }
 
 /**
+ * useEditMessage Hook
+ *
+ * Edits a user message with optional regeneration of subsequent messages
+ */
+export function useEditMessage() {
+  const { updateMessage, removeMessagesAfter, setError } = useChatStore();
+
+  return useMutation({
+    mutationFn: async ({ messageId, content, regenerate }: EditMessageRequest) => {
+      const response = await fetch(`${API_BASE_URL}/messages/${messageId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content,
+          regenerate,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: 'Failed to edit message' }));
+        throw new Error(error.message || error.detail || 'Failed to edit message');
+      }
+
+      return response.json() as Promise<EditMessageResponse>;
+    },
+    onMutate: async ({ messageId, content, regenerate }: EditMessageRequest) => {
+      // Optimistic update
+      updateMessage(messageId, content);
+
+      if (regenerate) {
+        removeMessagesAfter(messageId);
+      }
+
+      return { messageId, content };
+    },
+    onError: (error) => {
+      console.error('Failed to edit message:', error);
+      setError(error instanceof Error ? error.message : 'Failed to edit message');
+    },
+    retry: 1,
+  });
+}
+
+/**
  * useClearChat Hook
  *
  * Clears the current chat session
@@ -207,7 +280,7 @@ export function useClearChat() {
 
       return response.json();
     },
-    onSuccess: (data, sessionId) => {
+    onSuccess: (_data, sessionId) => {
       clearMessages();
       queryClient.invalidateQueries({ queryKey: ['chatHistory', sessionId] });
     },
@@ -221,5 +294,6 @@ export default {
   useSendMessage,
   useChatHistory,
   useStreamMessage,
+  useEditMessage,
   useClearChat,
 };

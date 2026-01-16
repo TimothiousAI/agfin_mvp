@@ -38,6 +38,19 @@ class ChatRequest(BaseModel):
     )
 
 
+class EditMessageRequest(BaseModel):
+    """Request model for editing a message."""
+    content: str = Field(..., min_length=1, description="New message content")
+    regenerate: bool = Field(False, description="Whether to delete subsequent messages and regenerate")
+
+
+class EditMessageResponse(BaseModel):
+    """Response model for edit message endpoint."""
+    message_id: str
+    content: str
+    messages_deleted: int = 0
+
+
 class ChatResponse(BaseModel):
     """Response model for chat endpoint."""
     message: str = Field(..., description="AI assistant response")
@@ -271,4 +284,79 @@ async def get_session_messages(session_id: str, limit: int = 50):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve messages: {str(e)}"
+        )
+
+
+@router.patch("/messages/{message_id}", response_model=EditMessageResponse)
+async def edit_message(message_id: str, request: EditMessageRequest):
+    """
+    Edit a user message in a chat session.
+
+    Updates the message content and optionally deletes all subsequent messages
+    if regeneration is requested.
+
+    Args:
+        message_id: UUID of the message to edit
+        request: EditMessageRequest with new content and regenerate flag
+
+    Returns:
+        EditMessageResponse with updated message details
+
+    Raises:
+        HTTPException: If message not found or not a user message
+    """
+    try:
+        db = await get_db_client()
+
+        # Get the message to verify it exists and is a user message
+        verify_query = """
+            SELECT id, session_id, role, content
+            FROM agfin_ai_bot_messages
+            WHERE id = $1
+        """
+
+        message = await db.pool.fetchrow(verify_query, message_id)
+
+        if not message:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Message {message_id} not found"
+            )
+
+        if message["role"] != "user":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only user messages can be edited"
+            )
+
+        # Update the message content
+        success = await db.update_message(message_id, request.content)
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to update message"
+            )
+
+        # If regenerate requested, delete subsequent messages
+        messages_deleted = 0
+        if request.regenerate:
+            messages_deleted = await db.delete_messages_after(
+                str(message["session_id"]),
+                message_id
+            )
+            logger.info(f"Deleted {messages_deleted} messages after {message_id} for regeneration")
+
+        return EditMessageResponse(
+            message_id=message_id,
+            content=request.content,
+            messages_deleted=messages_deleted
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Edit message error: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to edit message: {str(e)}"
         )

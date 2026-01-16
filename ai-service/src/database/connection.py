@@ -186,6 +186,72 @@ class DatabaseClient:
         )
         return str(session_id)
 
+    async def update_message(
+        self,
+        message_id: str,
+        content: str
+    ) -> bool:
+        """
+        Update a message's content.
+
+        Args:
+            message_id: UUID of the message to update
+            content: New message content
+
+        Returns:
+            True if update successful, False if message not found
+        """
+        if not self.pool:
+            await self.connect()
+
+        query = """
+            UPDATE agfin_ai_bot_messages
+            SET content = $2
+            WHERE id = $1
+            RETURNING id
+        """
+
+        result = await self.pool.fetchval(query, message_id, content)
+        return result is not None
+
+    async def delete_messages_after(
+        self,
+        session_id: str,
+        message_id: str
+    ) -> int:
+        """
+        Delete all messages in a session that were created after the specified message.
+
+        Args:
+            session_id: UUID of the chat session
+            message_id: UUID of the message - all messages after this will be deleted
+
+        Returns:
+            Number of messages deleted
+        """
+        if not self.pool:
+            await self.connect()
+
+        # Get the timestamp of the reference message
+        get_timestamp_query = """
+            SELECT created_at FROM agfin_ai_bot_messages
+            WHERE id = $1 AND session_id = $2
+        """
+
+        timestamp = await self.pool.fetchval(get_timestamp_query, message_id, session_id)
+        if not timestamp:
+            return 0
+
+        # Delete all messages created after this timestamp
+        delete_query = """
+            DELETE FROM agfin_ai_bot_messages
+            WHERE session_id = $1 AND created_at > $2
+            RETURNING id
+        """
+
+        deleted = await self.pool.fetch(delete_query, session_id, timestamp)
+        return len(deleted)
+
 
 # Module-level client instance (initialized lazily)
 _client: Optional[DatabaseClient] = None

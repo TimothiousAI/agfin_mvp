@@ -14,6 +14,7 @@ from typing import Optional, List, Dict, Any
 import logging
 
 from ..database.connection import get_db_client
+from ..utils.title_generator import generate_session_title, create_fallback_title
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -64,6 +65,19 @@ class SessionMessagesResponse(BaseModel):
     session_id: str
     messages: List[MessageResponse]
     count: int
+
+
+class GenerateTitleRequest(BaseModel):
+    """Request model for title generation."""
+    user_message: str = Field(..., min_length=1, description="First user message")
+    assistant_response: str = Field(..., min_length=1, description="First assistant response")
+
+
+class GenerateTitleResponse(BaseModel):
+    """Response model for title generation."""
+    session_id: str
+    title: str
+    generated: bool  # True if AI-generated, False if fallback
 
 
 @router.get("/sessions", response_model=SessionListResponse)
@@ -353,6 +367,85 @@ async def update_session(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update session: {str(e)}"
+        )
+
+
+@router.post("/sessions/{session_id}/generate-title", response_model=GenerateTitleResponse)
+async def generate_and_apply_title(
+    session_id: str,
+    request: GenerateTitleRequest
+):
+    """
+    Generate a title for a session from the first exchange.
+
+    Uses Claude to generate a meaningful title from the first user message
+    and assistant response. Falls back to truncated user message on failure.
+
+    Args:
+        session_id: UUID of the session to update
+        request: GenerateTitleRequest with first exchange content
+
+    Returns:
+        GenerateTitleResponse with generated title
+
+    Raises:
+        HTTPException: If session not found or update fails
+    """
+    try:
+        db = await get_db_client()
+
+        # Verify session exists
+        session = await db.get_session(session_id)
+        if not session:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Session {session_id} not found"
+            )
+
+        # Skip if title already customized (not default)
+        if session.get("title") != "New Conversation":
+            return GenerateTitleResponse(
+                session_id=session_id,
+                title=session.get("title"),
+                generated=False
+            )
+
+        # Try AI generation, fall back to truncation
+        generated = True
+        try:
+            title = await generate_session_title(
+                user_message=request.user_message,
+                assistant_response=request.assistant_response
+            )
+        except Exception as e:
+            logger.warning(f"AI title generation failed, using fallback: {e}")
+            title = create_fallback_title(request.user_message)
+            generated = False
+
+        # Update session title in database
+        query = """
+            UPDATE agfin_ai_bot_sessions
+            SET title = $2, updated_at = now()
+            WHERE id = $1
+            RETURNING id
+        """
+        await db.pool.execute(query, session_id, title)
+
+        logger.info(f"Updated session {session_id} title to: {title}")
+
+        return GenerateTitleResponse(
+            session_id=session_id,
+            title=title,
+            generated=generated
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Generate title error: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate title: {str(e)}"
         )
 
 

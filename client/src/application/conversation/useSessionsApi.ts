@@ -19,14 +19,6 @@ type DbSession = Database['public']['Tables']['agfin_ai_bot_sessions']['Row'];
 type WorkflowMode = DbSession['workflow_mode'];
 
 /**
- * Session with message count from view
- */
-interface SessionWithCount extends DbSession {
-  message_count?: number;
-  first_message?: string;
-}
-
-/**
  * API Helper Functions
  */
 
@@ -55,8 +47,10 @@ async function createSessionApi(
   const user = await getCurrentUser();
   if (!user) throw new Error('Not authenticated');
 
+  // @ts-ignore - Supabase type inference limitation
   const { data, error } = await supabase
     .from('agfin_ai_bot_sessions')
+    // @ts-ignore - Supabase type inference limitation
     .insert({
       user_id: user.id,
       title,
@@ -81,6 +75,7 @@ async function updateSessionApi(
 ): Promise<Session> {
   const { data, error } = await supabase
     .from('agfin_ai_bot_sessions')
+    // @ts-ignore - Supabase type inference limitation
     .update(updates)
     .eq('id', sessionId)
     .select()
@@ -107,6 +102,40 @@ async function deleteSessionApi(sessionId: string): Promise<void> {
     .eq('id', sessionId);
 
   if (sessionError) throw sessionError;
+}
+
+interface GenerateTitleRequest {
+  userMessage: string;
+  assistantResponse: string;
+}
+
+interface GenerateTitleResponse {
+  session_id: string;
+  title: string;
+  generated: boolean;
+}
+
+async function generateSessionTitleApi(
+  sessionId: string,
+  request: GenerateTitleRequest
+): Promise<GenerateTitleResponse> {
+  const response = await fetch(`/api/agfin-ai-bot/sessions/${sessionId}/generate-title`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      user_message: request.userMessage,
+      assistant_response: request.assistantResponse,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ detail: 'Failed to generate title' }));
+    throw new Error(error.detail || 'Failed to generate title');
+  }
+
+  return response.json();
 }
 
 /**
@@ -139,7 +168,7 @@ export function useSessions(limit = 100) {
  */
 export function useCreateSession() {
   const queryClient = useQueryClient();
-  const { addSession, setCurrentSession } = useSessionStore();
+  const { addSession, setCurrentSession: _setCurrentSession } = useSessionStore();
 
   return useMutation({
     mutationFn: ({
@@ -179,14 +208,14 @@ export function useCreateSession() {
       return { previousSessions, optimisticSession };
     },
 
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       // Rollback on error
       if (context?.previousSessions) {
         queryClient.setQueryData(['sessions'], context.previousSessions);
       }
     },
 
-    onSuccess: (newSession, variables, context) => {
+    onSuccess: (newSession, _variables, context) => {
       // Replace optimistic session with real one in store
       const store = useSessionStore.getState();
       if (context?.optimisticSession) {
@@ -242,7 +271,7 @@ export function useUpdateSession() {
       return { previousSessions, previousSession };
     },
 
-    onError: (err, variables, context) => {
+    onError: (_err, variables, context) => {
       // Rollback on error
       if (context?.previousSessions) {
         queryClient.setQueryData(['sessions'], context.previousSessions);
@@ -295,7 +324,7 @@ export function useDeleteSession() {
       return { previousSessions };
     },
 
-    onError: (err, sessionId, context) => {
+    onError: (_err, _sessionId, context) => {
       // Rollback on error
       if (context?.previousSessions) {
         queryClient.setQueryData(['sessions'], context.previousSessions);
@@ -305,6 +334,40 @@ export function useDeleteSession() {
     onSuccess: () => {
       // Invalidate to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    },
+  });
+}
+
+/**
+ * Generate session title from first exchange
+ * Calls AI service to create meaningful title, updates store optimistically
+ */
+export function useGenerateSessionTitle() {
+  const queryClient = useQueryClient();
+  const { updateSession } = useSessionStore();
+
+  return useMutation({
+    mutationFn: ({
+      sessionId,
+      userMessage,
+      assistantResponse,
+    }: {
+      sessionId: string;
+      userMessage: string;
+      assistantResponse: string;
+    }) => generateSessionTitleApi(sessionId, { userMessage, assistantResponse }),
+
+    onSuccess: (data, variables) => {
+      // Update local store with generated title
+      updateSession(variables.sessionId, { title: data.title });
+
+      // Invalidate sessions query to refetch from server
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    },
+
+    onError: (error) => {
+      console.error('Failed to generate session title:', error);
+      // Silent failure - title remains "New Conversation"
     },
   });
 }

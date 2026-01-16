@@ -26,6 +26,12 @@ interface ChatState {
   isStreaming: boolean;
   streamingMessageId: string | null;
   error: string | null;
+  lastUserMessage: string | null;
+  lastUserMessageId: string | null;
+
+  // Editing state
+  editingMessageId: string | null;
+  isEditing: boolean;
 
   // Actions
   addMessage: (message: Message) => void;
@@ -38,6 +44,14 @@ interface ChatState {
   clearMessages: () => void;
   setMessages: (messages: Message[]) => void;
   setError: (error: string | null) => void;
+  setLastUserMessage: (content: string, id: string) => void;
+  removeMessage: (messageId: string) => void;
+
+  // Editing actions
+  startEditing: (messageId: string) => void;
+  cancelEditing: () => void;
+  updateMessage: (messageId: string, content: string) => void;
+  removeMessagesAfter: (messageId: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -47,6 +61,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isStreaming: false,
   streamingMessageId: null,
   error: null,
+  lastUserMessage: null,
+  lastUserMessageId: null,
+
+  // Editing state
+  editingMessageId: null,
+  isEditing: false,
 
   // Add a message to the chat
   addMessage: (message: Message) => {
@@ -63,7 +83,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
       role,
       content,
       created_at: new Date().toISOString(),
-      metadata: null,
       isStreaming: role === 'assistant',
     };
 
@@ -103,7 +122,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
       role: 'assistant',
       content: '',
       created_at: new Date().toISOString(),
-      metadata: null,
       isStreaming: true,
     };
 
@@ -139,6 +157,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       isStreaming: false,
       streamingMessageId: null,
       error: null,
+      lastUserMessage: null,
+      lastUserMessageId: null,
     });
   },
 
@@ -150,6 +170,57 @@ export const useChatStore = create<ChatState>((set, get) => ({
   // Set error state
   setError: (error: string | null) => {
     set({ error, isTyping: false, isStreaming: false });
+  },
+
+  // Set last user message (for regeneration)
+  setLastUserMessage: (content: string, id: string) => {
+    set({ lastUserMessage: content, lastUserMessageId: id });
+  },
+
+  // Remove a message by ID
+  removeMessage: (messageId: string) => {
+    set((state) => ({
+      messages: state.messages.filter((msg) => msg.id !== messageId),
+    }));
+  },
+
+  // Start editing a message
+  startEditing: (messageId: string) => {
+    set({
+      editingMessageId: messageId,
+      isEditing: true,
+    });
+  },
+
+  // Cancel editing
+  cancelEditing: () => {
+    set({
+      editingMessageId: null,
+      isEditing: false,
+    });
+  },
+
+  // Update a message's content (for editing)
+  updateMessage: (messageId: string, content: string) => {
+    set((state) => ({
+      messages: state.messages.map((msg) =>
+        msg.id === messageId ? { ...msg, content } : msg
+      ),
+      editingMessageId: null,
+      isEditing: false,
+    }));
+  },
+
+  // Remove all messages after a given message (for regeneration)
+  removeMessagesAfter: (messageId: string) => {
+    set((state) => {
+      const messageIndex = state.messages.findIndex((m) => m.id === messageId);
+      if (messageIndex === -1) return state;
+
+      return {
+        messages: state.messages.slice(0, messageIndex + 1),
+      };
+    });
   },
 }));
 
