@@ -36,6 +36,16 @@ test-results/
 # Temp files
 *.tmp
 .playwright-mcp/
+temp_*.sql
+stderr.txt
+stdout.txt
+test-output.txt
+nul
+container-inspect.json
+containers.txt
+
+# Local settings
+.claude/settings.local.json
 
 # Logs
 logs/
